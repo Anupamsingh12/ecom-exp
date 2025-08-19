@@ -23,7 +23,6 @@ export default async function ProductPage({
 
   try {
     productData = await getProductById(productId);
-    console.log("-==========", productData)
     const dd = await getAllProducts();
     relatedProducts = dd.rows;
   } catch (error) {

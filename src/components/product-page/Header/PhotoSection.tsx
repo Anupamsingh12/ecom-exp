@@ -2,16 +2,27 @@
 
 import Image from "next/image";
 import React, { useState } from "react";
+import { useAppSelector } from "@/lib/hooks/redux";
+import { RootState } from "@/lib/store";
 
 const PhotoSection = ({ data }: { data: any }) => {
-  const firstVariantImages = data?.varients?.[0]?.images || [];
-  const [selected, setSelected] = useState<string>(firstVariantImages[0]);
+  const { colorSelection, sizeSelection } = useAppSelector(
+    (state: RootState) => state.products
+  );
+
+  const filteredVariant = data.varients.find(
+    (variant: any) =>
+      variant.color === colorSelection.name && variant.size === sizeSelection
+  );
+
+  const images = filteredVariant?.images || [];
+  const [selected, setSelected] = useState<string>(images[0]);
 
   return (
     <div className="flex flex-col-reverse lg:flex-row lg:space-x-3.5">
-      {firstVariantImages.length > 0 && (
+      {images.length > 0 && (
         <div className="flex lg:flex-col space-x-3 lg:space-x-0 lg:space-y-3.5 w-full lg:w-fit items-center lg:justify-start justify-center">
-          {firstVariantImages.map((photo: string, index: number) => (
+          {images.map((photo: string, index: number) => (
             <button
               key={index}
               type="button"
@@ -23,7 +34,7 @@ const PhotoSection = ({ data }: { data: any }) => {
                 width={152}
                 height={167}
                 className="rounded-md w-full h-full object-cover hover:scale-110 transition-all duration-500"
-                alt={data.name}
+                alt={filteredVariant?.sku}
               />
             </button>
           ))}
@@ -36,7 +47,7 @@ const PhotoSection = ({ data }: { data: any }) => {
           width={444}
           height={530}
           className="rounded-md w-full h-full object-cover hover:scale-110 transition-all duration-500"
-          alt={data.name}
+          alt={filteredVariant?.sku}
         />
       </div>
     </div>

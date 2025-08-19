@@ -12,13 +12,14 @@ type ProductCardNewProps = {
 const ProductCardNew = ({ data }: ProductCardNewProps) => {
   const originalPrice = parseFloat(data.price);
   const discount = data.discountPercent;
-  const discountedPrice = discount > 0
-    ? originalPrice - (originalPrice * discount) / 100
-    : originalPrice;
+  const discountedPrice =
+    discount > 0
+      ? originalPrice - (originalPrice * discount) / 100
+      : originalPrice;
 
   return (
     <Link
-      href={`/shop/product/${data.id}/${data.name.split(" ").join("-")}`}
+      href={`/shop/product/${data?.id}/${data?.name.split(" ").join("-")}`}
       className="flex flex-col items-start aspect-auto"
     >
       <div className="bg-[#F0EEED] rounded-[13px] lg:rounded-[20px] w-full lg:max-w-[295px] aspect-square mb-2.5 xl:mb-4 overflow-hidden">
@@ -28,11 +29,11 @@ const ProductCardNew = ({ data }: ProductCardNewProps) => {
           height={298}
           className="rounded-md w-full h-full object-contain hover:scale-110 transition-all duration-500"
           alt={data.name}
-        //   priority
+          //   priority
         />
       </div>
       <strong className="text-black xl:text-xl">{data.name}</strong>
-      
+
       {/* Optional static rating display */}
       <div className="flex items-end mb-1 xl:mb-2">
         {/* You can add a <Rating /> component here if needed */}

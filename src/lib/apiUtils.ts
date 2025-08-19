@@ -9,7 +9,7 @@ interface ApiOptions {
   params?: Record<string, string>;
 }
 
-const BASE_URL = 'Http://127.0.0.1:4001/api/v1/'
+const BASE_URL = 'http://ecom-backend.thepublicpoints.com/api/v1/'
 
 export async function apiCall<T>(
   endpoint: string,
