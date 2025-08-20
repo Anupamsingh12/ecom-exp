@@ -27,7 +27,7 @@ export interface Products {
   createdAt: string;
   updatedAt: string;
   image: string;
-  varients: string;
+  varients: any[];
 }
 
 export interface ProductsResponse {

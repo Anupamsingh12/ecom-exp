@@ -1,20 +1,65 @@
-import React from "react";
+"use client";
+
+import React, { useEffect } from "react";
 import PhotoSection from "./PhotoSection";
-import { Products } from "@/types/product.types";
+import { Product, Products } from "@/types/product.types";
 import { integralCF } from "@/styles/fonts";
 import { cn } from "@/lib/utils";
+import { useAppDispatch, useAppSelector } from "@/lib/hooks/redux";
+import { RootState } from "@/lib/store";
 // import Rating from "@/components/ui/Rating"; // remove if not used
 import ColorSelection from "./ColorSelection";
 import SizeSelection from "./SizeSelection";
 import AddToCardSection from "./AddToCardSection";
+import {
+  setColorSelection,
+  setSizeSelection,
+} from "@/lib/features/products/productsSlice";
 
 const Header = ({ data }: { data: Products }) => {
+  const dispatch = useAppDispatch();
   const price = parseFloat(data.price);
   const discount = data.discountPercent;
+  const { colorSelection, sizeSelection } = useAppSelector(
+    (state: RootState) => state.products
+  );
 
-  const finalPrice = discount > 0
-    ? price - (price * discount) / 100
-    : price;
+  // Get the selected variant and its additional price
+  const selectedVariant = data.varients.find(
+    v => v.color === colorSelection.name && v.size === sizeSelection
+  );
+  const additionalPrice = selectedVariant ? parseFloat(selectedVariant.additionalPrice) : 0;
+
+  // Set default variant selection when component mounts
+  useEffect(() => {
+    if (data.varients && data.varients.length > 0) {
+      // Get first available color
+      const firstVariant = data.varients[0];
+      const firstColor = {
+        name: firstVariant.color,
+        code:
+          firstVariant.color.toLowerCase() === "white"
+            ? "bg-white border border-gray-200"
+            : `bg-[${firstVariant.color}]`,
+      };
+
+      // Dispatch default color
+      dispatch(setColorSelection(firstColor));
+
+      // Dispatch default size for the selected color
+      const sizesForColor = data.varients
+        .filter((v) => v.color === firstVariant.color)
+        .map((v) => v.size);
+
+      if (sizesForColor.length > 0) {
+        dispatch(setSizeSelection(sizesForColor[0]));
+      }
+    }
+  }, [data.varients, dispatch]);
+
+  // Calculate final price including discount and additional price from variant
+  const basePrice = price + additionalPrice;
+  const finalPrice = discount > 0 ? basePrice - (basePrice * discount) / 100 : basePrice;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -57,12 +102,12 @@ const Header = ({ data }: { data: Products }) => {
 
         <hr className="h-[1px] border-t-black/10 mb-5" />
 
-        <ColorSelection varients={data.varients} />
+        <ColorSelection variants={data.varients} />
         <hr className="h-[1px] border-t-black/10 my-5" />
         <SizeSelection varients={data.varients} />
         <hr className="hidden md:block h-[1px] border-t-black/10 my-5" />
 
-        <AddToCardSection data={data} />
+        <AddToCardSection data={data as unknown as Product} />
       </div>
     </div>
   );

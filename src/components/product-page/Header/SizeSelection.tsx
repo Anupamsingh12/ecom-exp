@@ -4,13 +4,21 @@ import { setSizeSelection } from "@/lib/features/products/productsSlice";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks/redux";
 import { RootState } from "@/lib/store";
 import { cn } from "@/lib/utils";
-import React from "react";
+import React, { useMemo } from "react";
 
-const SizeSelection = () => {
-  const { sizeSelection } = useAppSelector(
+const SizeSelection = ({ varients }: { varients: any[] }) => {
+  const { sizeSelection, colorSelection } = useAppSelector(
     (state: RootState) => state.products
   );
   const dispatch = useAppDispatch();
+
+  // Extract available sizes for the selected color
+  const availableSizes = useMemo(() => {
+    const sizes = varients
+      .filter(variant => variant.color === colorSelection.name)
+      .map(variant => variant.size);
+    return Array.from(new Set(sizes)); // Remove duplicates
+  }, [varients, colorSelection.name]);
 
   return (
     <div className="flex flex-col">
@@ -18,7 +26,7 @@ const SizeSelection = () => {
         Choose Size
       </span>
       <div className="flex items-center flex-wrap lg:space-x-3">
-        {["Small", "Medium", "Large", "X-Large"].map((size, index) => (
+        {availableSizes.map((size, index) => (
           <button
             key={index}
             type="button"
