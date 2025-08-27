@@ -3,8 +3,11 @@ import { integralCF } from "@/styles/fonts";
 import React from "react";
 import * as motion from "framer-motion/client";
 import DressStyleCard from "./DressStyleCard";
+import { getAllCategory } from "@/services/categories";
 
-const DressStyle = () => {
+const DressStyle = async () => {
+  const categories = await getAllCategory();
+
   return (
     <div className="px-4 xl:px-0">
       <section className="max-w-frame mx-auto bg-[#F0F0F0] px-6 pb-6 pt-10 md:p-[70px] rounded-[40px] text-center">
@@ -20,41 +23,27 @@ const DressStyle = () => {
         >
           BROWSE BY dress STYLE
         </motion.h2>
+
         <motion.div
           initial={{ y: "100px", opacity: 0 }}
           whileInView={{ y: "0", opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.6, duration: 0.6 }}
-          className="flex flex-col sm:flex-row md:h-[289px] space-y-4 sm:space-y-0 sm:space-x-5 mb-4 sm:mb-5"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-5"
         >
-          <DressStyleCard
-            title="Casual"
-            url="/shop#casual"
-            className="md:max-w-[260px] lg:max-w-[360px] xl:max-w-[407px] h-[190px] bg-[url('/images/dress-style-1.png')]"
-          />
-          <DressStyleCard
-            title="Formal"
-            url="/shop#formal"
-            className="md:max-w-[684px] h-[190px] bg-[url('/images/dress-style-2.png')]"
-          />
-        </motion.div>
-        <motion.div
-          initial={{ y: "100px", opacity: 0 }}
-          whileInView={{ y: "0", opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 1, duration: 0.6 }}
-          className="flex flex-col sm:flex-row md:h-[289px] space-y-5 sm:space-y-0 sm:space-x-5"
-        >
-          <DressStyleCard
-            title="Party"
-            url="/shop#party"
-            className="md:max-w-[684px] h-[190px] bg-[url('/images/dress-style-3.png')]"
-          />
-          <DressStyleCard
-            title="Gym"
-            url="/shop#gym"
-            className="md:max-w-[260px] lg:max-w-[360px] xl:max-w-[407px] h-[190px] bg-[url('/images/dress-style-4.png')]"
-          />
+          {categories.map((d) => (
+            <DressStyleCard
+              key={d.id}
+              title={d.name}
+              url={`/shop#${d.name}`}
+              className="h-[190px] w-full rounded-[20px]"
+              style={{
+                backgroundImage: `url(${d.image})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+              }}
+            />
+          ))}
         </motion.div>
       </section>
     </div>

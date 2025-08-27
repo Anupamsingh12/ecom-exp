@@ -12,6 +12,11 @@ export type Product = {
   discount: Discount;
   rating: number;
 };
+export type Category = {
+  id: number;
+  name: string;
+  image: string;
+};
 
 // types/product.ts
 
