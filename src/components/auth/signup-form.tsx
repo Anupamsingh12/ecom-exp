@@ -17,13 +17,14 @@ import { Separator } from "@/components/ui/separator";
 import { Eye, EyeOff, Mail, User, Lock } from "lucide-react";
 import Link from "next/link";
 import { Input } from "../ui/input";
-
+import { signup } from "@/services/auth";
+import toast from 'react-hot-toast';
 export function SignUpForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    first_name: "",
+    last_name: "",
     email: "",
     password: "",
     confirmPassword: "",
@@ -31,8 +32,18 @@ export function SignUpForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log("Form submitted:", formData);
+    const {password, confirmPassword, email, first_name, last_name} = formData;
+    if(confirmPassword!==password){
+      alert('password not matched.')
+    }
+
+    signup({ email, password, first_name, last_name })
+  .then((data) => {
+    toast.success('Signed up successfully!');
+  })
+  .catch((e) => {
+    toast.error(e.message);
+  });
   };
 
   const handleInputChange = (field: string, value: string) => {
@@ -53,18 +64,18 @@ export function SignUpForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="firstName" className="text-sm font-medium">
+              <Label htmlFor="first_name" className="text-sm font-medium">
                 First Name
               </Label>
               <div className="relative">
                 <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
-                  id="firstName"
+                  id="first_name"
                   type="text"
                   placeholder="John"
-                  value={formData.firstName}
+                  value={formData.first_name}
                   onChange={(e) =>
-                    handleInputChange("firstName", e.target.value)
+                    handleInputChange("first_name", e.target.value)
                   }
                   className="pl-10 bg-background border-input"
                   required
@@ -72,18 +83,18 @@ export function SignUpForm() {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastName" className="text-sm font-medium">
+              <Label htmlFor="last_name" className="text-sm font-medium">
                 Last Name
               </Label>
               <div className="relative">
                 <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                 <Input
-                  id="lastName"
+                  id="last_name"
                   type="text"
                   placeholder="Doe"
-                  value={formData.lastName}
+                  value={formData.last_name}
                   onChange={(e) =>
-                    handleInputChange("lastName", e.target.value)
+                    handleInputChange("last_name", e.target.value)
                   }
                   className="pl-10 bg-background border-input"
                   required
@@ -178,7 +189,7 @@ export function SignUpForm() {
           </Button>
         </form>
 
-        {/* <div className="relative">
+        <div className="relative">
           <div className="absolute inset-0 flex items-center">
             <Separator className="w-full" />
           </div>
@@ -187,9 +198,9 @@ export function SignUpForm() {
               Or continue with
             </span>
           </div>
-        </div> */}
+        </div>
 
-        {/* <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <Button
             variant="outline"
             className="w-full border-input bg-transparent"
@@ -223,7 +234,7 @@ export function SignUpForm() {
             </svg>
             Facebook
           </Button>
-        </div> */}
+        </div>
       </CardContent>
       <CardFooter className="flex flex-col space-y-4">
         <div className="text-sm text-center text-muted-foreground">

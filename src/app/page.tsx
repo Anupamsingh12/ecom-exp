@@ -6,7 +6,7 @@ import DressStyle from "@/components/homepage/DressStyle";
 import Header from "@/components/homepage/Header";
 import Reviews from "@/components/homepage/Reviews";
 import { getAllProducts } from "@/services/products";
-
+import { Toaster } from 'react-hot-toast';
 export default async function Home() {
   let allProducts: any  = [];
 

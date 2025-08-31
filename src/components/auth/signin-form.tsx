@@ -11,7 +11,8 @@ import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Eye, EyeOff, Mail, Lock } from "lucide-react"
 import Link from "next/link"
-
+import { login } from "@/services/auth"
+import toast from 'react-hot-toast';
 export function SignInForm() {
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
@@ -22,8 +23,11 @@ export function SignInForm() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    // Handle form submission here
-    console.log("Form submitted:", formData, "Remember me:", rememberMe)
+    login(formData).then((d)=>{
+      toast.success('Logged in successfully')
+    }).catch((e)=>{
+      toast.error(e.message)
+    })
   }
 
   const handleInputChange = (field: string, value: string) => {
