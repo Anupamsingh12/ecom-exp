@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { FaMinus, FaPlus } from "react-icons/fa6";
 import { cn } from "@/lib/utils";
@@ -38,6 +38,11 @@ const CartCounter = ({
     if (counter - 1 <= 0) return;
     setCounter(counter - 1);
   };
+
+  // Sync counter with initialValue when it changes
+  useEffect(() => {
+    setCounter(initialValue);
+  }, [initialValue]);
 
   return (
     <div

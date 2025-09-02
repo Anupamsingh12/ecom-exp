@@ -1,24 +1,22 @@
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 import React from "react";
 
 type DressStyleCardProps = {
   title: string;
   url: string;
   className?: string;
+  style?: any
 };
 
-const DressStyleCard = ({ title, url, className }: DressStyleCardProps) => {
+const DressStyleCard = ({ title, url, className, style } : DressStyleCardProps) => {
   return (
-    <Link
+    <a
       href={url}
-      className={cn([
-        "w-full md:h-full rounded-[20px] bg-white bg-top text-2xl md:text-4xl font-bold text-left py-4 md:py-[25px] px-6 md:px-9 bg-no-repeat bg-cover",
-        className,
-      ])}
+      className={cn("p-4 text-white flex items-end", className)}
+      style={style}
     >
-      {title}
-    </Link>
+      <h3 className="text-lg font-semibold">{title}</h3>
+    </a>
   );
 };
 

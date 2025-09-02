@@ -51,7 +51,7 @@ export default function CartPage() {
                 <div className="flex flex-col space-y-5">
                   <div className="flex items-center justify-between">
                     <span className="md:text-xl text-black/60">Subtotal</span>
-                    <span className="md:text-xl font-bold">${totalPrice}</span>
+                    <span className="md:text-xl font-bold">${totalPrice.toFixed(2)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="md:text-xl text-black/60">
@@ -99,11 +99,13 @@ export default function CartPage() {
                   </Button>
                 </div>
                 <Button
-                  type="button"
                   className="text-sm md:text-base font-medium bg-black rounded-full w-full py-4 h-[54px] md:h-[60px] group"
+                  asChild
                 >
-                  Go to Checkout{" "}
-                  <FaArrowRight className="text-xl ml-2 group-hover:translate-x-1 transition-all" />
+                  <Link href="/checkout">
+                    Go to Checkout{" "}
+                    <FaArrowRight className="text-xl ml-2 group-hover:translate-x-1 transition-all" />
+                  </Link>
                 </Button>
               </div>
             </div>

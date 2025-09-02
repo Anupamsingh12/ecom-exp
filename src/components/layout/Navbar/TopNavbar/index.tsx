@@ -13,38 +13,25 @@ import Image from "next/image";
 import InputGroup from "@/components/ui/input-group";
 import ResTopNavbar from "./ResTopNavbar";
 import CartBtn from "./CartBtn";
+import { getAllCategory } from "@/services/categories";
 
+
+const TopNavbar = async () => {
+  const categories = await getAllCategory();
+const dataMap = categories.map((d)=> {
+  return {
+    id: d.id, 
+    label: d.name,
+    url: `/shop#${d.name}`,
+    description: d?.description || 'Click to browse products'
+  }
+} )
 const data: NavMenu = [
   {
     id: 1,
     label: "Shop",
     type: "MenuList",
-    children: [
-      {
-        id: 11,
-        label: "Men's clothes",
-        url: "/shop#men-clothes",
-        description: "In attractive and spectacular colors and designs",
-      },
-      {
-        id: 12,
-        label: "Women's clothes",
-        url: "/shop#women-clothes",
-        description: "Ladies, your style and tastes are important to us",
-      },
-      {
-        id: 13,
-        label: "Kids clothes",
-        url: "/shop#kids-clothes",
-        description: "For all ages, with happy and beautiful colors",
-      },
-      {
-        id: 14,
-        label: "Bags and Shoes",
-        url: "/shop#bag-shoes",
-        description: "Suitable for men, women and all tastes and styles",
-      },
-    ],
+    children: dataMap,
   },
   {
     id: 2,
@@ -68,8 +55,6 @@ const data: NavMenu = [
     children: [],
   },
 ];
-
-const TopNavbar = () => {
   return (
     <nav className="sticky top-0 bg-white z-20">
       <div className="flex relative max-w-frame mx-auto items-center justify-between md:justify-start py-5 md:py-6 px-4 xl:px-0">

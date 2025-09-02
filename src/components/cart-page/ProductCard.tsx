@@ -27,13 +27,13 @@ const ProductCard = ({ data }: ProductCardProps) => {
         href={`/shop/product/${data.id}/${data.name.split(" ").join("-")}`}
         className="bg-[#F0EEED] rounded-lg w-full min-w-[100px] max-w-[100px] sm:max-w-[124px] aspect-square overflow-hidden"
       >
-        <Image
+        <img
           src={data.srcUrl}
-          width={124}
-          height={124}
-          className="rounded-md w-full h-full object-cover hover:scale-110 transition-all duration-500"
+          width={295}
+          height={298}
+          className="rounded-md w-full h-full object-contain hover:scale-110 transition-all duration-500"
           alt={data.name}
-          priority
+          //   priority
         />
       </Link>
       <div className="flex w-full self-stretch flex-col">

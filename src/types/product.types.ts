@@ -12,8 +12,21 @@ export type Product = {
   discount: Discount;
   rating: number;
 };
+export type Category = {
+  id: number;
+  name: string;
+  image: string;
+};
 
 // types/product.ts
+
+export interface Variants {
+  size: string;
+  color: string;
+  sku: string;
+  additionalPrice: string;
+  images: string[];
+}
 
 export interface Products {
   id: number;
@@ -27,7 +40,7 @@ export interface Products {
   createdAt: string;
   updatedAt: string;
   image: string;
-  varients: any[];
+  varients: Variants[];
 }
 
 export interface ProductsResponse {

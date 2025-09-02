@@ -1,7 +1,5 @@
 "use client";
-
-import Image from "next/image";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAppSelector } from "@/lib/hooks/redux";
 import { RootState } from "@/lib/store";
 
@@ -16,7 +14,10 @@ const PhotoSection = ({ data }: { data: any }) => {
   );
 
   const images = filteredVariant?.images || [];
-  const [selected, setSelected] = useState<string>(images[0]);
+  const [selected, setSelected] = useState<string>("");
+  useEffect(() => {
+    setSelected(images[0]);
+  });
 
   return (
     <div className="flex flex-col-reverse lg:flex-row lg:space-x-3.5">
