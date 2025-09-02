@@ -1,4 +1,5 @@
 // lib/utils.ts
+import { getItem } from './localStorageControl';
 
 type RequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
@@ -9,7 +10,7 @@ interface ApiOptions {
   params?: Record<string, string>;
 }
 
-const BASE_URL = 'http://ecom-backend.thepublicpoints.com/api/v1/'
+const BASE_URL = 'http://ecom-backend.thepublicpoints.com/api/v1'
 
 export async function apiCall<T>(
   endpoint: string,
@@ -29,10 +30,13 @@ export async function apiCall<T>(
 
   const url = `${BASE_URL}${endpoint}${queryString}`;
 
+  const accessToken = getItem('accessToken');
+
   const fetchOptions: RequestInit = {
     method,
     headers: {
       'Content-Type': 'application/json',
+      ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {}),
       ...headers,
     },
     body: body ? JSON.stringify(body) : undefined,

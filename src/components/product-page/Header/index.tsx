@@ -2,7 +2,7 @@
 
 import React, { useEffect } from "react";
 import PhotoSection from "./PhotoSection";
-import { Product, Products } from "@/types/product.types";
+import { Product, Products, Variants } from "@/types/product.types";
 import { integralCF } from "@/styles/fonts";
 import { cn } from "@/lib/utils";
 import { useAppDispatch, useAppSelector } from "@/lib/hooks/redux";
@@ -16,7 +16,15 @@ import {
   setSizeSelection,
 } from "@/lib/features/products/productsSlice";
 
-const Header = ({ data }: { data: Products }) => {
+interface HeaderProps {
+  data: Products & {
+    basePrice?: number;
+    finalPrice?: number;
+    selectedVariant?: Variants;
+  };
+}
+
+const Header = ({ data }: HeaderProps) => {
   const dispatch = useAppDispatch();
   const price = parseFloat(data.price);
   const discount = data.discountPercent;
@@ -26,9 +34,11 @@ const Header = ({ data }: { data: Products }) => {
 
   // Get the selected variant and its additional price
   const selectedVariant = data.varients.find(
-    v => v.color === colorSelection.name && v.size === sizeSelection
+    (v) => v.color === colorSelection.name && v.size === sizeSelection
   );
-  const additionalPrice = selectedVariant ? parseFloat(selectedVariant.additionalPrice) : 0;
+  const additionalPrice = selectedVariant
+    ? parseFloat(selectedVariant.additionalPrice)
+    : 0;
 
   // Set default variant selection when component mounts
   useEffect(() => {
@@ -59,7 +69,8 @@ const Header = ({ data }: { data: Products }) => {
 
   // Calculate final price including discount and additional price from variant
   const basePrice = price + additionalPrice;
-  const finalPrice = discount > 0 ? basePrice - (basePrice * discount) / 100 : basePrice;
+  const finalPrice =
+    discount > 0 ? basePrice - (basePrice * discount) / 100 : basePrice;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -107,7 +118,14 @@ const Header = ({ data }: { data: Products }) => {
         <SizeSelection varients={data.varients} />
         <hr className="hidden md:block h-[1px] border-t-black/10 my-5" />
 
-        <AddToCardSection data={data as unknown as Product} />
+        <AddToCardSection
+          data={{
+            ...data,
+            selectedVariant,
+            basePrice: basePrice,
+            finalPrice: finalPrice,
+          }}
+        />
       </div>
     </div>
   );

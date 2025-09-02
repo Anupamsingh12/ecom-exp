@@ -1,34 +1,53 @@
 "use client";
 
 import { addToCart } from "@/lib/features/carts/cartsSlice";
-import { useAppDispatch, useAppSelector } from "@/lib/hooks/redux";
-import { RootState } from "@/lib/store";
-import { Product } from "@/types/product.types";
+import { useAppDispatch } from "@/lib/hooks/redux";
+import { Products, Variants } from "@/types/product.types";
 import React from "react";
 
-const AddToCartBtn = ({ data }: { data: Product & { quantity: number } }) => {
+interface AddToCartBtnProps {
+  data: Products & {
+    quantity: number;
+    basePrice: number;
+    finalPrice: number;
+    selectedVariant?: Variants;
+  };
+  onAddSuccess?: () => void;
+}
+
+const AddToCartBtn = ({ data, onAddSuccess }: AddToCartBtnProps) => {
   const dispatch = useAppDispatch();
-  const { sizeSelection, colorSelection } = useAppSelector(
-    (state: RootState) => state.products
-  );
+
+  const handleAddToCart = () => {
+    if (!data.selectedVariant) return;
+    
+    dispatch(
+      addToCart({
+        id: data.id,
+        name: data.name,
+        srcUrl: data?.selectedVariant?.images[0] || data.image,
+        price: data.basePrice,
+        attributes: [data.selectedVariant.size, data.selectedVariant.color],
+        discount: {
+          amount: 0,
+          percentage: data.discountPercent
+        },
+        quantity: data.quantity,
+      })
+    );
+    
+    // Call the success callback to reset counter
+    if (onAddSuccess) {
+      onAddSuccess();
+    }
+  };
 
   return (
     <button
       type="button"
-      className="bg-black w-full ml-3 sm:ml-5 rounded-full h-11 md:h-[52px] text-sm sm:text-base text-white hover:bg-black/80 transition-all"
-      onClick={() =>
-        dispatch(
-          addToCart({
-            id: data.id,
-            name: data.title,
-            srcUrl: data.srcUrl,
-            price: data.price,
-            attributes: [sizeSelection, colorSelection.name],
-            discount: data.discount,
-            quantity: data.quantity,
-          })
-        )
-      }
+      className="bg-black w-full ml-3 sm:ml-5 rounded-full h-11 md:h-[52px] text-sm sm:text-base text-white hover:bg-black/80 transition-all disabled:bg-gray-400 disabled:cursor-not-allowed"
+      disabled={!data.selectedVariant}
+      onClick={handleAddToCart}
     >
       Add to Cart
     </button>
