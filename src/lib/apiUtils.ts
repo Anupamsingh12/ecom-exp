@@ -1,7 +1,7 @@
 // lib/utils.ts
-import { getItem } from './localStorageControl';
+import { getItem } from "./localStorageControl";
 
-type RequestMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+type RequestMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
 interface ApiOptions {
   method?: RequestMethod;
@@ -10,33 +10,28 @@ interface ApiOptions {
   params?: Record<string, string>;
 }
 
-const BASE_URL = 'http://ecom-backend.thepublicpoints.com/api/v1'
+const BASE_URL = "http://ecom-backend.thepublicpoints.com/api/v1";
 
 export async function apiCall<T>(
   endpoint: string,
   options: ApiOptions = {}
 ): Promise<T> {
-  const {
-    method = 'GET',
-    headers = {},
-    body,
-    params
-  } = options;
+  const { method = "GET", headers = {}, body, params } = options;
 
   // Build query params if present
   const queryString = params
-    ? '?' + new URLSearchParams(params).toString()
-    : '';
+    ? "?" + new URLSearchParams(params).toString()
+    : "";
 
   const url = `${BASE_URL}${endpoint}${queryString}`;
 
-  const accessToken = getItem('accessToken');
+  const accessToken = getItem("accessToken");
 
   const fetchOptions: RequestInit = {
     method,
     headers: {
-      'Content-Type': 'application/json',
-      ...(accessToken ? { 'Authorization': `Bearer ${accessToken}` } : {}),
+      "Content-Type": "application/json",
+      ...(accessToken ? { authorization: accessToken } : {}),
       ...headers,
     },
     body: body ? JSON.stringify(body) : undefined,

@@ -1,43 +1,74 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Eye, EyeOff, Mail, Lock } from "lucide-react"
-import Link from "next/link"
-import { login } from "@/services/auth"
-import toast from 'react-hot-toast';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import Link from "next/link";
+import { login } from "@/services/auth";
+import toast from "react-hot-toast";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useAuth } from "@/lib/hooks/useAuth";
+
 export function SignInForm() {
-  const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
+  const router = useRouter();
+  const { signIn } = useAuth();
+
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get("redirect") || "/";
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-  })
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    login(formData).then((d)=>{
-      toast.success('Logged in successfully')
-    }).catch((e)=>{
-      toast.error(e.message)
-    })
-  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      const response = await login(formData);
+      if (response.accessToken) {
+        // set authentication state and store token
+        signIn(response.accessToken);
+
+        // Redirect to the intended page after login
+        const decodedUrl = decodeURIComponent(redirectUrl);
+        toast.success("Logged in successfully");
+        setTimeout(() => {
+          router.push(decodedUrl);
+        }, 100);
+      }
+    } catch (e: any) {
+      console.error("Login error:", e);
+      toast.error(e.message);
+    }
+  };
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }))
-  }
+    setFormData((prev) => ({ ...prev, [field]: value }));
+  };
 
   return (
     <Card className="w-full shadow-lg border-border">
       <CardHeader className="space-y-1">
-        <CardTitle className="text-2xl font-semibold text-center">Sign In</CardTitle>
+        <CardTitle className="text-2xl font-semibold text-center">
+          Sign In
+        </CardTitle>
         <CardDescription className="text-center text-muted-foreground">
           Enter your credentials to access your account
         </CardDescription>
@@ -82,7 +113,11 @@ export function SignInForm() {
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
               >
-                {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
               </button>
             </div>
           </div>
@@ -94,11 +129,17 @@ export function SignInForm() {
                 checked={rememberMe}
                 onCheckedChange={(checked) => setRememberMe(checked as boolean)}
               />
-              <Label htmlFor="remember" className="text-sm text-muted-foreground cursor-pointer">
+              <Label
+                htmlFor="remember"
+                className="text-sm text-muted-foreground cursor-pointer"
+              >
                 Remember me
               </Label>
             </div>
-            <Link href="/forgot-password" className="text-sm text-primary hover:underline">
+            <Link
+              href="/forgot-password"
+              className="text-sm text-primary hover:underline"
+            >
               Forgot password?
             </Link>
           </div>
@@ -110,17 +151,18 @@ export function SignInForm() {
             Sign In
           </Button>
         </form>
-
-        
       </CardContent>
       <CardFooter className="flex flex-col space-y-4">
         <div className="text-sm text-center text-muted-foreground">
           Don't have an account?{" "}
-          <Link href="/auth/signup" className="text-primary hover:underline font-medium">
+          <Link
+            href="/auth/signup"
+            className="text-primary hover:underline font-medium"
+          >
             Sign up
           </Link>
         </div>
       </CardFooter>
     </Card>
-  )
+  );
 }
