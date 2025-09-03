@@ -31,7 +31,7 @@ export const cartService = {
   // Remove item from cart
   removeFromCart: async (productId: string): Promise<Cart> => {
     return apiCall<Cart>(`/carts/${productId}`, {
-      method: 'DELETE'
+      method: 'PATCH'
     });
   },
 };

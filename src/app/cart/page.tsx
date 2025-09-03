@@ -13,11 +13,23 @@ import React from "react";
 import { RootState } from "@/lib/store";
 import { useAppSelector } from "@/lib/hooks/redux";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/lib/hooks/useAuth";
 
 export default function CartPage() {
+  const router = useRouter();
+  const { isAuthenticated } = useAuth();
   const { cart, totalPrice, adjustedTotalPrice } = useAppSelector(
     (state: RootState) => state.carts
   );
+  
+  const handleCheckout = () => {
+    if (!isAuthenticated) {
+      router.push(`/auth/signin?redirect=${encodeURIComponent("/cart")}`);
+      return;
+    }
+    router.push("/checkout");
+  };
 
   return (
     <main className="pb-20">
@@ -100,12 +112,10 @@ export default function CartPage() {
                 </div>
                 <Button
                   className="text-sm md:text-base font-medium bg-black rounded-full w-full py-4 h-[54px] md:h-[60px] group"
-                  asChild
+                  onClick={handleCheckout}
                 >
-                  <Link href="/checkout">
-                    Go to Checkout{" "}
-                    <FaArrowRight className="text-xl ml-2 group-hover:translate-x-1 transition-all" />
-                  </Link>
+                  Go to Checkout{" "}
+                  <FaArrowRight className="text-xl ml-2 group-hover:translate-x-1 transition-all" />
                 </Button>
               </div>
             </div>

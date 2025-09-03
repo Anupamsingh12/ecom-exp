@@ -14,6 +14,7 @@ import InputGroup from "@/components/ui/input-group";
 import ResTopNavbar from "./ResTopNavbar";
 import CartBtn from "./CartBtn";
 import { getAllCategory } from "@/services/categories";
+import UserAuthNav from "./UserAuthNav";
 
 
 const TopNavbar = async () => {
@@ -116,16 +117,7 @@ const data: NavMenu = [
             />
           </Link>
           <CartBtn />
-          <Link href="/auth/signin" className="p-1">
-            <Image
-              priority
-              src="/icons/user.svg"
-              height={100}
-              width={100}
-              alt="user"
-              className="max-w-[22px] max-h-[22px]"
-            />
-          </Link>
+          <UserAuthNav />
         </div>
       </div>
     </nav>

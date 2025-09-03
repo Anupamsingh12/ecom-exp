@@ -7,6 +7,7 @@ import Footer from "@/components/layout/Footer";
 import HolyLoader from "holy-loader";
 import Providers from "./providers";
 import { Toaster } from "react-hot-toast";
+import AuthProvider from "@/components/auth/AuthProvider";
 
 export const metadata: Metadata = {
   title: "Shopco",
@@ -28,9 +29,11 @@ export default function RootLayout({
         <HolyLoader color="#868686" />
         <TopBanner />
         <Providers>
-          <TopNavbar />
-          <Toaster position="top-right" reverseOrder={false} />
-          {children}
+          <AuthProvider>
+            <TopNavbar />
+            <Toaster position="top-right" reverseOrder={false} />
+            {children}
+          </AuthProvider>
         </Providers>
         <Footer />
       </body>
