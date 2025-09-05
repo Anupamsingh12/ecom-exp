@@ -43,8 +43,8 @@ export function SignInForm() {
     try {
       const response = await login(formData);
       if (response.accessToken) {
-        // set authentication state and store token
-        signIn(response.accessToken);
+        // set authentication state and store token with user data
+        signIn(response.user, response.accessToken);
 
         // Redirect to the intended page after login
         const decodedUrl = decodeURIComponent(redirectUrl);

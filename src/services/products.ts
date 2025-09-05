@@ -1,11 +1,11 @@
 // services/productService.ts
 
 import { apiCall } from '@/lib/apiUtils';
-import type { ProductsResponse } from '@/types/product.types';
+import type { ProductsResponse, SingleProductDetails } from '@/types/product.types';
 
 export async function getAllProducts() {
   return apiCall<ProductsResponse>('/products');
 }
 export async function getProductById(productId: string) {
-  return apiCall<ProductsResponse>('/products/'+ productId);
+  return apiCall<SingleProductDetails>('/products/'+ productId);
 }

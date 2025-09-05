@@ -16,46 +16,45 @@ import CartBtn from "./CartBtn";
 import { getAllCategory } from "@/services/categories";
 import UserAuthNav from "./UserAuthNav";
 
-
 const TopNavbar = async () => {
   const categories = await getAllCategory();
-const dataMap = categories.map((d)=> {
-  return {
-    id: d.id, 
-    label: d.name,
-    url: `/shop#${d.name}`,
-    description: d?.description || 'Click to browse products'
-  }
-} )
-const data: NavMenu = [
-  {
-    id: 1,
-    label: "Shop",
-    type: "MenuList",
-    children: dataMap,
-  },
-  {
-    id: 2,
-    type: "MenuItem",
-    label: "On Sale",
-    url: "/shop#on-sale",
-    children: [],
-  },
-  {
-    id: 3,
-    type: "MenuItem",
-    label: "New Arrivals",
-    url: "/shop#new-arrivals",
-    children: [],
-  },
-  {
-    id: 4,
-    type: "MenuItem",
-    label: "Brands",
-    url: "/shop#brands",
-    children: [],
-  },
-];
+  const dataMap = categories.map((d) => {
+    return {
+      id: d.id,
+      label: d.name,
+      url: `/shop#${d.name}`,
+      description: d?.description || "Click to browse products",
+    };
+  });
+  const data: NavMenu = [
+    {
+      id: 1,
+      label: "Shop",
+      type: "MenuList",
+      children: dataMap,
+    },
+    {
+      id: 2,
+      type: "MenuItem",
+      label: "On Sale",
+      url: "/shop#on-sale",
+      children: [],
+    },
+    {
+      id: 3,
+      type: "MenuItem",
+      label: "New Arrivals",
+      url: "/shop#new-arrivals",
+      children: [],
+    },
+    {
+      id: 4,
+      type: "MenuItem",
+      label: "Brands",
+      url: "/shop#brands",
+      children: [],
+    },
+  ];
   return (
     <nav className="sticky top-0 bg-white z-20">
       <div className="flex relative max-w-frame mx-auto items-center justify-between md:justify-start py-5 md:py-6 px-4 xl:px-0">
@@ -116,7 +115,9 @@ const data: NavMenu = [
               className="max-w-[22px] max-h-[22px]"
             />
           </Link>
+          {/* Cart Icon */}
           <CartBtn />
+          {/* Profile Icon */}
           <UserAuthNav />
         </div>
       </div>

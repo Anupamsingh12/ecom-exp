@@ -9,20 +9,28 @@ import { integralCF } from "@/styles/fonts";
 import { FaArrowRight } from "react-icons/fa6";
 import { MdOutlineLocalOffer } from "react-icons/md";
 import { TbBasketExclamation } from "react-icons/tb";
-import React from "react";
-import { RootState } from "@/lib/store";
-import { useAppSelector } from "@/lib/hooks/redux";
+import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/hooks/useAuth";
+import { useAtom } from "jotai";
+import { cartAtom } from "@/app/store";
+import { useCartInitialization } from "@/lib/hooks/useCartInitialization";
 
 export default function CartPage() {
   const router = useRouter();
   const { isAuthenticated } = useAuth();
-  const { cart, totalPrice, adjustedTotalPrice } = useAppSelector(
-    (state: RootState) => state.carts
+  const { cart, isLoading } = useCartInitialization(isAuthenticated);
+
+  // Calculate totals
+  const subtotal = cart.items.reduce(
+    (total, item) => total + Number(item.price) * item.quantity,
+    0
   );
-  
+  const discountPercent = 0; // You can implement your discount logic here
+  const discountAmount = (subtotal * discountPercent) / 100;
+  const finalTotal = subtotal - discountAmount;
+
   const handleCheckout = () => {
     if (!isAuthenticated) {
       router.push(`/auth/signin?redirect=${encodeURIComponent("/cart")}`);
@@ -34,7 +42,11 @@ export default function CartPage() {
   return (
     <main className="pb-20">
       <div className="max-w-frame mx-auto px-4 xl:px-0">
-        {cart && cart.items.length > 0 ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center h-[60vh]">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-black"></div>
+          </div>
+        ) : cart && cart.items.length > 0 ? (
           <>
             <BreadcrumbCart />
             <h2
@@ -63,18 +75,16 @@ export default function CartPage() {
                 <div className="flex flex-col space-y-5">
                   <div className="flex items-center justify-between">
                     <span className="md:text-xl text-black/60">Subtotal</span>
-                    <span className="md:text-xl font-bold">${totalPrice.toFixed(2)}</span>
+                    <span className="md:text-xl font-bold">
+                      ${subtotal.toFixed(2)}
+                    </span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="md:text-xl text-black/60">
-                      Discount (-
-                      {Math.round(
-                        ((totalPrice - adjustedTotalPrice) / totalPrice) * 100
-                      )}
-                      %)
+                      Discount ({discountPercent}%)
                     </span>
                     <span className="md:text-xl font-bold text-red-600">
-                      -${Math.round(totalPrice - adjustedTotalPrice)}
+                      -${discountAmount.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -87,7 +97,7 @@ export default function CartPage() {
                   <div className="flex items-center justify-between">
                     <span className="md:text-xl text-black">Total</span>
                     <span className="text-xl md:text-2xl font-bold">
-                      ${Math.round(adjustedTotalPrice)}
+                      ${finalTotal.toFixed(2)}
                     </span>
                   </div>
                 </div>

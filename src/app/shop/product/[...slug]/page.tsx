@@ -5,6 +5,7 @@ import BreadcrumbProduct from "@/components/product-page/BreadcrumbProduct";
 import Header from "@/components/product-page/Header";
 import Tabs from "@/components/product-page/Tabs";
 import { getProductById, getAllProducts } from "@/services/products";
+import { Products, SingleProductDetails } from "@/types/product.types";
 import { notFound } from "next/navigation";
 
 export default async function ProductPage({
@@ -18,8 +19,8 @@ export default async function ProductPage({
     notFound();
   }
 
-  let productData: any = null;
-  let relatedProducts: any = [];
+  let productData: SingleProductDetails | null = null;
+  let relatedProducts: Products[] = [];
 
   try {
     productData = await getProductById(productId);
@@ -39,7 +40,7 @@ export default async function ProductPage({
         <hr className="h-[1px] border-t-black/10 mb-5 sm:mb-6" />
         <BreadcrumbProduct title={productData?.name ?? "Product"} />
         <section className="mb-11">
-          <Header data={productData} />
+          <Header product={productData} />
         </section>
         <Tabs />
       </div>
@@ -47,7 +48,7 @@ export default async function ProductPage({
       <div className="mb-[50px] sm:mb-20">
         <ProductListNew
           title="You might also like"
-          data={Array.isArray(relatedProducts) ? relatedProducts : []}
+          data={relatedProducts ? relatedProducts : []}
         />
       </div>
     </main>

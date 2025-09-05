@@ -3,11 +3,11 @@
 import CartCounter from "@/components/ui/CartCounter";
 import React, { useState } from "react";
 import AddToCartBtn from "./AddToCartBtn";
-import { Products, Variants } from "@/types/product.types";
+import { Products, SingleProductDetails, Variants } from "@/types/product.types";
 import toast from "react-hot-toast";
 
 interface AddToCardSectionProps {
-  data: Products & {
+  data: SingleProductDetails & {
     basePrice: number;
     finalPrice: number;
     selectedVariant?: Variants;
@@ -19,7 +19,7 @@ const AddToCardSection = ({ data }: AddToCardSectionProps) => {
 
   const handleAddSuccess = () => {
     toast.success('Product added to cart successfully!');
-    setQuantity(1); // Reset quantity to 1 after successful add to cart
+    setQuantity(1); // Reset quantity to 1 after successful add-to-cart
   };
 
   return (

@@ -8,6 +8,7 @@ import HolyLoader from "holy-loader";
 import Providers from "./providers";
 import { Toaster } from "react-hot-toast";
 import AuthProvider from "@/components/auth/AuthProvider";
+import { Provider as JotaiProvider } from "jotai";
 
 export const metadata: Metadata = {
   title: "Shopco",
@@ -29,11 +30,16 @@ export default function RootLayout({
         <HolyLoader color="#868686" />
         <TopBanner />
         <Providers>
-          <AuthProvider>
-            <TopNavbar />
-            <Toaster position="top-right" reverseOrder={false} />
-            {children}
-          </AuthProvider>
+          <JotaiProvider>
+            <AuthProvider>
+              <TopNavbar />
+              <Toaster
+                position="top-center"
+                reverseOrder={false}
+              />
+              {children}
+            </AuthProvider>
+          </JotaiProvider>
         </Providers>
         <Footer />
       </body>

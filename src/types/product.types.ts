@@ -12,6 +12,7 @@ export type Product = {
   discount: Discount;
   rating: number;
 };
+
 export type Category = {
   id: number;
   name: string;
@@ -21,6 +22,7 @@ export type Category = {
 // types/product.ts
 
 export interface Variants {
+  varient_id: number;
   size: string;
   color: string;
   sku: string;
@@ -36,14 +38,39 @@ export interface Products {
   discountPercent: number;
   stockQuantity: number;
   isActive: boolean;
+  clothing_type_id: number;
   created_by: string | null;
   createdAt: string;
   updatedAt: string;
   image: string;
-  varients: Variants[];
+  varients: string;
 }
 
 export interface ProductsResponse {
   count: number;
-  rows: Product[];
+  rows: Products[];
+}
+
+export interface SingleProductDetails {
+  id: number;
+  name: string;
+  description: string;
+  price: string;
+  discountPercent: number;
+  stockQuantity: number;
+  isActive: boolean;
+  created_by: string | null;
+  createdAt: string;
+  updatedAt: string;
+  image: string[];
+  brand_id: number;
+  category_id: number;
+  clothing_type_id: number;
+  size: string;
+  color: string;
+  sku: string;
+  additionalPrice: string;
+  stock: number;
+  product_id: number;
+  varients: Variants[];
 }

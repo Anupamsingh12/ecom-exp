@@ -8,15 +8,22 @@ interface ApiOptions {
   headers?: Record<string, string>;
   body?: any;
   params?: Record<string, string>;
+  noCache?: boolean;
 }
 
-const BASE_URL = "http://ecom-backend.thepublicpoints.com/api/v1";
+const BASE_URL = "https://ecom-backend.thepublicpoints.com/api/v1";
 
 export async function apiCall<T>(
   endpoint: string,
   options: ApiOptions = {}
 ): Promise<T> {
-  const { method = "GET", headers = {}, body, params } = options;
+  const {
+    method = "GET",
+    headers = {},
+    body,
+    params,
+    noCache = true,
+  } = options;
 
   // Build query params if present
   const queryString = params
@@ -29,6 +36,7 @@ export async function apiCall<T>(
 
   const fetchOptions: RequestInit = {
     method,
+    cache: noCache ? "no-store" : "default",
     headers: {
       "Content-Type": "application/json",
       ...(accessToken ? { authorization: accessToken } : {}),

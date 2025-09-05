@@ -1,33 +1,58 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useSetAtom } from 'jotai';
 import { getCurrentUser } from '@/services/auth';
-import { setCredentials } from '@/lib/features/auth/authSlice';
+import { userAtom, isAuthenticatedAtom } from '@/app/store';
+import { usePathname } from 'next/navigation';
+import { getItem } from '@/lib/localStorageControl';
 
 export default function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
-  const dispatch = useDispatch();
+  const setUser = useSetAtom(userAtom);
+  const setIsAuthenticated = useSetAtom(isAuthenticatedAtom);
+  const pathname = usePathname();
 
-  useEffect(() => {
-    const initApp = async () => {
-      setIsLoading(true);
-      try {
-        const user = await getCurrentUser();
-        if (user) {
-          dispatch(setCredentials(user));
-        }
-      } catch (error) {
-        // User is not authenticated, but we won't redirect
-        console.log('User not authenticated');
-      } finally {
-        setIsLoading(false);
+  const checkAuthStatus = async () => {
+    // Only check if we have a token
+    const token = getItem('accessToken');
+    if (!token) {
+      setUser(null);
+      setIsAuthenticated(false);
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const user = await getCurrentUser();
+      if (user) {
+        setUser(user);
+        setIsAuthenticated(true);
       }
-    };
+    } catch (error) {
+      console.log('User not authenticated');
+      setUser(null);
+      setIsAuthenticated(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-    // Initialize auth state
-    initApp();
-  }, [dispatch]);
+  // Check auth on mount
+  useEffect(() => {
+    checkAuthStatus();
+  }, []); // Initial check
+
+  // Check auth on route change
+  useEffect(() => {
+    if (!isLoading) { // Prevent double-checking on initial mount
+      checkAuthStatus();
+    }
+  }, [pathname]); // Re-run when route changes
+
+  if (isLoading) {
+    return null; // or a loading spinner
+  }
 
   return children;
 }
