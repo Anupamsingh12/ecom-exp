@@ -2,11 +2,11 @@
 
 import { addToCart } from "@/lib/features/carts/cartsSlice";
 import { useAppDispatch } from "@/lib/hooks/redux";
-import { Products, Variants } from "@/types/product.types";
+import { SingleProductDetails, Variants } from "@/types/product.types";
 import React from "react";
 
 interface AddToCartBtnProps {
-  data: Products & {
+  data: SingleProductDetails & {
     quantity: number;
     basePrice: number;
     finalPrice: number;
@@ -25,7 +25,7 @@ const AddToCartBtn = ({ data, onAddSuccess }: AddToCartBtnProps) => {
       addToCart({
         id: data.id,
         name: data.name,
-        srcUrl: data?.selectedVariant?.images[0] || data.image,
+        srcUrl: data?.selectedVariant?.images[0] || (Array.isArray(data.image) ? data.image[0] : data.image),
         price: data.basePrice,
         attributes: [data.selectedVariant.size, data.selectedVariant.color],
         discount: {

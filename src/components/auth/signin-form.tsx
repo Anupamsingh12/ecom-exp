@@ -3,6 +3,8 @@
 import type React from "react";
 
 import { useState } from "react";
+import { useAtom } from "jotai";
+import { cartAtom } from "@/app/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,11 +16,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 import Link from "next/link";
 import { login } from "@/services/auth";
+import { getCartItems } from "@/services/cart";
 import toast from "react-hot-toast";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -26,6 +28,7 @@ import { useAuth } from "@/lib/hooks/useAuth";
 export function SignInForm() {
   const router = useRouter();
   const { signIn } = useAuth();
+  const [, setCart] = useAtom(cartAtom);
 
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get("redirect") || "/";
@@ -43,8 +46,26 @@ export function SignInForm() {
     try {
       const response = await login(formData);
       if (response.accessToken) {
-        // set authentication state and store token
-        signIn(response.accessToken);
+        // set authentication state and store token with user data
+        signIn(response.user, response.accessToken);
+
+        // Fetch and update cart items
+        try {
+          const cartItems = await getCartItems();
+          const formattedCartItems = cartItems?.map((item: any) => ({
+            variantId: item.id,
+            quantity: item.quantity,
+            product_name: item.product_name,
+            size: item.size,
+            color: item.color,
+            image: item.image,
+            price: Number(item.price),
+            sku: item.sku,
+          }));
+          setCart({ items: formattedCartItems });
+        } catch (error) {
+          console.error("Error fetching cart items:", error);
+        }
 
         // Redirect to the intended page after login
         const decodedUrl = decodeURIComponent(redirectUrl);

@@ -22,12 +22,12 @@ const ProductCardNew = ({ data }: ProductCardNewProps) => {
       href={`/shop/product/${data?.id}/${data?.name.split(" ").join("-")}`}
       className="flex flex-col items-start aspect-auto"
     >
-      <div className="bg-[#F0EEED] rounded-[13px] lg:rounded-[20px] w-full lg:max-w-[295px] aspect-square mb-2.5 xl:mb-4 overflow-hidden">
+      <div className="bg-[#F0EEED] rounded-[13px] lg:rounded-[20px] w-full aspect-square mb-2.5 xl:mb-4 overflow-hidden">
         <img
           src={data.image}
-          width={295}
-          height={298}
-          className="rounded-md w-full h-full object-contain hover:scale-110 transition-all duration-500"
+          width={300}
+          height={300}
+          className="rounded-md object-fill hover:scale-110 transition-all duration-500"
           alt={data.name}
           //   priority
         />

@@ -2,28 +2,31 @@
 
 import { removeItem, setItem } from '../localStorageControl';
 import { useRouter } from 'next/navigation';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../store';
-import { setCredentials, clearCredentials } from '../features/auth/authSlice';
+import { useAtom } from 'jotai';
+import { userAtom, isAuthenticatedAtom } from '@/app/store';
+import { User } from '@/types/user.types';
 
 export function useAuth() {
-  const dispatch = useDispatch();
   const router = useRouter();
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const [user, setUser] = useAtom(userAtom);
+  const [isAuthenticated, setIsAuthenticated] = useAtom(isAuthenticatedAtom);
 
-  const signIn = (token: string) => {
+  const signIn = (userData: User, token: string) => {
     setItem('accessToken', token);
-    dispatch(setCredentials(token));
+    setUser(userData);
+    setIsAuthenticated(true);
   };
 
   const signOut = () => {
     removeItem('accessToken');
-    dispatch(clearCredentials());
+    setUser(null);
+    setIsAuthenticated(false);
     router.push('/auth/signin');
   };
 
   return {
     isAuthenticated,
+    user,
     signIn,
     signOut
   };

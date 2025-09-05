@@ -9,7 +9,6 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
-import ProductCard from "./ProductCard"; // <-- Assuming this works with your Product type
 import { Products } from "@/types/product.types";
 import Link from "next/link";
 import ProductCardNew from "./productCardNew";

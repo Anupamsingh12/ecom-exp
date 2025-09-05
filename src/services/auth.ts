@@ -1,13 +1,13 @@
 import { apiCall } from "@/lib/apiUtils";
-import { Signup, Login, User } from "@/types/user.types";
-
-export async function signup(data: Signup) {
-  return apiCall<Signup[]>("/auth/register", { body: data, method: "POST" });
-}
+import { Login, User, SignUpData } from "@/types/user.types";
 
 interface LoginResponse {
   accessToken: string;
-  user: Signup;
+  user: User;
+}
+
+export async function signup(data: SignUpData) {
+  return apiCall<LoginResponse[]>("/auth/register", { body: data, method: "POST" });
 }
 
 export async function login(data: Login) {
@@ -18,6 +18,6 @@ export async function getCurrentUser() {
   return apiCall<User>("/auth/me", { method: "GET" });
 }
 
-export async function updateProfile(data: Partial<Signup>) {
-  return apiCall<Signup[]>("/auth/me", { body: data, method: "PUT" });
+export async function updateProfile(data: Partial<User>) {
+  return apiCall<User[]>("/auth/me", { body: data, method: "PUT" });
 }

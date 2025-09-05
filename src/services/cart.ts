@@ -1,37 +1,42 @@
-import { apiCall } from '@/lib/apiUtils';
+import { apiCall } from "@/lib/apiUtils";
 
-export interface CartItem {
-  productId: string;
+export interface CartResponse {
+  id: number;
+  product_name: string;
+  size: string;
+  color: string;
+  image: string[];
+  sku: string;
+  price: string;
+  additionalPrice: string;
   quantity: number;
 }
 
-export interface Cart {
-  _id: string;
-  userId: string;
-  items: CartItem[];
-  totalPrice: number;
-  createdAt: string;
+export interface AddToCartRequest {
+  id: number;
+  varient_id: number;
+  quantity: number;
+  user_id: number;
   updatedAt: string;
+  createdAt: string;
 }
 
-export const cartService = {
-  // Get user's cart
-  getCart: async (): Promise<Cart> => {
-    return apiCall<Cart>('/carts');
-  },
+export async function getCartItems() {
+  return apiCall<CartResponse[]>("/carts");
+}
 
-  // Add item to cart
-  addToCart: async (varient_id: number, quantity: number): Promise<Cart> => {
-    return apiCall<Cart>('/carts', {
-      method: 'POST',
-      body: { varient_id, quantity }
-    });
-  },
+export async function addItemToCart(varient_id: number, quantity: number) {
+  return apiCall<AddToCartRequest>("/carts", {
+    method: "POST",
+    body: { varient_id, quantity },
+  });
+}
 
-  // Remove item from cart
-  removeFromCart: async (productId: string): Promise<Cart> => {
-    return apiCall<Cart>(`/carts/${productId}`, {
-      method: 'PATCH'
-    });
-  },
-};
+export async function removeItemFromCart(productId: number) {
+  return apiCall<CartResponse>(`/carts`, {
+    method: "PATCH",
+    body: {
+      cart_id: productId,
+    },
+  });
+}

@@ -7,17 +7,17 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useSelector } from "react-redux";
-import type { RootState } from "@/lib/store";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { useState, useEffect } from "react";
+import { useAtom } from 'jotai';
+import { userAtom } from '@/app/store';
 
 export function GeneralSettingsForm() {
-  const user = useSelector((state: RootState) => state.auth.user);
+  const [user] = useAtom(userAtom);
   const [name, setName] = useState(user ? `${user.first_name} ${user.last_name}` : "");
   const [email, setEmail] = useState(user?.email || "");
   const [newsletter, setNewsletter] = useState(true);
