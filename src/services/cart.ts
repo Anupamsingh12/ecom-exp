@@ -34,9 +34,18 @@ export async function addItemToCart(varient_id: number, quantity: number) {
 
 export async function removeItemFromCart(productId: number) {
   return apiCall<CartResponse>(`/carts`, {
-    method: "PATCH",
+    method: "DELETE",
     body: {
       cart_id: productId,
     },
   });
 }
+export async function updateCartQuantity(cart_id: number, quantity: number) {
+  return apiCall<CartResponse>(`/carts/${cart_id}`, {
+    method: "PATCH",
+    body: {
+      quantity,
+    },
+  });
+}
+

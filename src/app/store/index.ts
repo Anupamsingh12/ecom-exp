@@ -7,6 +7,7 @@ export const isAuthenticatedAtom = atom<boolean>(false);
 
 // cart atom
 export interface CartItem {
+  id: any;
   variantId: number;
   quantity: number;
   product_name: string;

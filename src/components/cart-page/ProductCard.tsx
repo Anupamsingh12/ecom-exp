@@ -9,7 +9,7 @@ import { CartItem, cartAtom } from "@/app/store";
 import { useAtom } from "jotai";
 import { setItem } from "@/lib/localStorageControl";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { removeItemFromCart, addItemToCart } from "@/services/cart";
+import { removeItemFromCart, addItemToCart, updateCartQuantity } from "@/services/cart";
 import toast from "react-hot-toast";
 
 type ProductCardProps = {
@@ -23,10 +23,7 @@ const ProductCard = ({ data }: ProductCardProps) => {
   const handleRemoveItem = async () => {
     if (isAuthenticated) {
       try {
-        // Call the API to remove item from server
-        await removeItemFromCart(data?.variantId);
-
-        // Update local state after successful API call
+        await removeItemFromCart(data?.id);
         const updatedItems = cart.items.filter((item) => item.sku !== data.sku);
         setCart({ items: updatedItems });
         toast.success("Item removed from cart");
@@ -45,20 +42,8 @@ const ProductCard = ({ data }: ProductCardProps) => {
   const handleQuantityChange = async (newQuantity: number) => {
     try {
       if (isAuthenticated) {
-        if (newQuantity > data.quantity) {
-          // Adding items
-          await addItemToCart(data.variantId, newQuantity);
-        } else if (newQuantity < data.quantity) {
-          // Removing items
-          await removeItemFromCart(data.variantId);
-          if (newQuantity > 0) {
-            // If not removing all items, add back the new quantity
-            await addItemToCart(data.variantId, newQuantity);
-          }
-        }
+          await updateCartQuantity(data.id, newQuantity)
       }
-      
-      // Update local state after successful API call or for unauthenticated users
       const updatedItems = cart.items.map((item) => {
         if (item.sku === data.sku) {
           return { ...item, quantity: newQuantity };
@@ -69,7 +54,9 @@ const ProductCard = ({ data }: ProductCardProps) => {
         items: updatedItems,
       };
       setCart(newCart);
-      setItem("cart", JSON.stringify(updatedItems));
+      if(!isAuthenticated){
+        setItem("cart", JSON.stringify(updatedItems));
+      }
     } catch (error) {
       console.error("Error updating cart quantity:", error);
       toast.error("Failed to update cart quantity");

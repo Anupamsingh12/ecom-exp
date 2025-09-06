@@ -1,39 +1,34 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { useAtom } from 'jotai';
-import { cartAtom } from '@/app/store';
-import { getItem, setItem } from '@/lib/localStorageControl';
-import { addItemToCart, getCartItems } from '@/services/cart';
+import { useEffect, useRef, useState, useCallback } from "react";
+import { useAtom } from "jotai";
+import { cartAtom } from "@/app/store";
+import { getItem, removeItem } from "@/lib/localStorageControl";
+import { addItemToCart, getCartItems } from "@/services/cart";
 
 export const useCartInitialization = (isAuthenticated: boolean) => {
   const [cart, setCart] = useAtom(cartAtom);
   const [isLoading, setIsLoading] = useState(false);
   const hasInitialized = useRef(false);
-  const isMigrating = useRef(false);
 
+  // ⏫ Only migrates once on login
   const migrateCartToServer = useCallback(async (parsedCart: any[]) => {
-    if (isMigrating.current) return;
-    isMigrating.current = true;
-
     try {
-      // Migrate items to server one time only
       for (const item of parsedCart) {
         await addItemToCart(item?.variantId, item?.quantity);
       }
-      // Clear localStorage after successful migration
-      setItem("cart", JSON.stringify([]));
-      setCart({ items: [] });
+
+      // 🧹 Clear cart from localStorage once done
+      removeItem("cart");
     } catch (error) {
       console.error("Error migrating cart items to server:", error);
-    } finally {
-      isMigrating.current = false;
     }
-  }, [setCart]);
+  }, []);
 
   const fetchCartFromServer = useCallback(async () => {
     try {
       const cartItems = await getCartItems();
       const formattedCartItems = cartItems?.map((item: any) => ({
-        variantId: item.id,
+        id: item.id,
+        variantId: item.varient_id,
         quantity: item.quantity,
         product_name: item.product_name,
         size: item.size,
@@ -41,6 +36,7 @@ export const useCartInitialization = (isAuthenticated: boolean) => {
         image: item.image,
         price: Number(item.price),
         sku: item.sku,
+        cart_id: item.id,
       }));
       setCart({ items: formattedCartItems });
     } catch (error) {
@@ -51,31 +47,24 @@ export const useCartInitialization = (isAuthenticated: boolean) => {
   useEffect(() => {
     const initializeCart = async () => {
       if (hasInitialized.current) return;
-      
-      const storedCart = getItem("cart");
-      if (!storedCart) {
-        hasInitialized.current = true;
-        return;
-      }
+      hasInitialized.current = true;
 
-      try {
-        const parsedCart = JSON.parse(storedCart);
-        
-        if (isAuthenticated) {
-          setIsLoading(true);
-          if (parsedCart.length > 0) {
-            await migrateCartToServer(parsedCart);
-          }
-          await fetchCartFromServer();
-          setIsLoading(false);
-        } else {
-          setCart({ items: parsedCart });
+      const storedCart = getItem("cart");
+      const parsedCart = storedCart ? JSON.parse(storedCart) : [];
+
+      if (isAuthenticated) {
+        setIsLoading(true);
+
+        // 🔐 Only migrate if there are items to migrate
+        if (Array.isArray(parsedCart) && parsedCart.length > 0) {
+          await migrateCartToServer(parsedCart);
         }
-        
-        hasInitialized.current = true;
-      } catch (error) {
-        console.error("Error initializing cart:", error);
+
+        await fetchCartFromServer();
         setIsLoading(false);
+      } else {
+        // 👤 Guest user — use localStorage cart
+        setCart({ items: parsedCart });
       }
     };
 
