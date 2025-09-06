@@ -53,6 +53,7 @@ export function SignInForm() {
         try {
           const cartItems = await getCartItems();
           const formattedCartItems = cartItems?.map((item: any) => ({
+            id: item.id,
             variantId: item.id,
             quantity: item.quantity,
             product_name: item.product_name,

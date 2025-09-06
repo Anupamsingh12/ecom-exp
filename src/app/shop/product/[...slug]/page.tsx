@@ -2,7 +2,7 @@
 
 import ProductListNew from "@/components/common/ProductListNew";
 import BreadcrumbProduct from "@/components/product-page/BreadcrumbProduct";
-import Header from "@/components/product-page/Header";
+import ProductPageDetails from "@/components/product-page/ProductPageDetails";
 import Tabs from "@/components/product-page/Tabs";
 import { getProductById, getAllProducts } from "@/services/products";
 import { Products, SingleProductDetails } from "@/types/product.types";
@@ -39,8 +39,9 @@ export default async function ProductPage({
       <div className="max-w-frame mx-auto px-4 xl:px-0">
         <hr className="h-[1px] border-t-black/10 mb-5 sm:mb-6" />
         <BreadcrumbProduct title={productData?.name ?? "Product"} />
+
         <section className="mb-11">
-          <Header product={productData} />
+          <ProductPageDetails product={productData} />
         </section>
         <Tabs />
       </div>

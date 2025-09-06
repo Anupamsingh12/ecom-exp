@@ -99,7 +99,7 @@ const ProductCard = ({ data }: ProductCardProps) => {
         <div className="flex items-center flex-wrap justify-between">
           <div className="flex items-center space-x-[5px] xl:space-x-2.5">
             <span className="font-bold text-black text-xl xl:text-2xl">
-              ${data.price.toFixed(2)}
+              ₹{data.price.toFixed(2)}
             </span>
           </div>
           <CartCounter
