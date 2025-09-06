@@ -76,7 +76,7 @@ export default function CartPage() {
                   <div className="flex items-center justify-between">
                     <span className="md:text-xl text-black/60">Subtotal</span>
                     <span className="md:text-xl font-bold">
-                      ${subtotal.toFixed(2)}
+                      ₹{subtotal.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -84,7 +84,7 @@ export default function CartPage() {
                       Discount ({discountPercent}%)
                     </span>
                     <span className="md:text-xl font-bold text-red-600">
-                      -${discountAmount.toFixed(2)}
+                      -₹{discountAmount.toFixed(2)}
                     </span>
                   </div>
                   <div className="flex items-center justify-between">
@@ -97,7 +97,7 @@ export default function CartPage() {
                   <div className="flex items-center justify-between">
                     <span className="md:text-xl text-black">Total</span>
                     <span className="text-xl md:text-2xl font-bold">
-                      ${finalTotal.toFixed(2)}
+                      ₹{finalTotal.toFixed(2)}
                     </span>
                   </div>
                 </div>

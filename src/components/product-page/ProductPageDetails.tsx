@@ -1,10 +1,8 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Minus, Plus, Heart, Share2, Star } from "lucide-react";
+import { Minus, Plus, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SingleProductDetails, Variants } from "@/types/product.types";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -18,7 +16,7 @@ interface ProductPageProps {
   product: SingleProductDetails;
 }
 
-export default function ProductPage({ product }: ProductPageProps) {
+export default function ProductPageDetails({ product }: ProductPageProps) {
   const { isAuthenticated } = useAuth();
 
   const [cart, setCart] = useAtom(cartAtom);

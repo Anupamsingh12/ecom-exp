@@ -8,50 +8,60 @@ import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils";
-import {
-  CartItem,
-  ShippingFormData,
-  ShippingMethod,
-} from "@/types/checkout.types";
-import { ShippingForm } from "@/components/checkout/ShippingForm";
+import { ShippingMethod } from "@/types/checkout.types";
 import { integralCF } from "@/styles/fonts";
-import BreadcrumbCart from "@/components/cart-page/BreadcrumbCart";
+import { ShippingAddressSection } from "@/components/checkout/ShippingAddressSection";
 
-const demoItems: CartItem[] = [
-  {
-    id: "sku-tee",
-    title: "Essential Cotton Tee",
-    price: 24,
-    qty: 2,
-    imageAlt: "White cotton tee",
-    imageUrl: "/white-cotton-tee-product-image.png",
-  },
-  {
-    id: "sku-jeans",
-    title: "Dark Wash Denim",
-    price: 68,
-    qty: 1,
-    imageAlt: "Dark wash denim jeans",
-    imageUrl: "/dark-wash-denim-jeans-product-image.png",
-  },
-];
+import { useEffect } from "react";
+import { getCartItems } from "@/services/cart";
+import { PaymentMethodSection } from "@/components/checkout/PaymentMethod";
+import { PaymentMethod } from "@/types/payment.types";
+import { useRouter } from "next/navigation";
+import { createOrder } from "@/services/orders";
+import toast from "react-hot-toast";
+
+interface CheckoutCartItem {
+  id: number;
+  title: string;
+  price: number;
+  qty: number;
+  imageAlt: string;
+  imageUrl: string;
+}
 
 export default function CheckoutPage() {
-  const [items] = useState<CartItem[]>(demoItems);
+  const router = useRouter();
+
+  const [items, setItems] = useState<CheckoutCartItem[]>([]);
   const [shippingMethod, setShippingMethod] =
     useState<ShippingMethod>("standard");
-  const [form, setForm] = useState<ShippingFormData>({
-    fullName: "",
-    email: "",
-    phone: "",
-    address1: "",
-    address2: "",
-    city: "",
-    state: "",
-    postalCode: "",
-    country: "US",
-    notes: "",
-  });
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("");
+  const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
+    null
+  );
+
+  useEffect(() => {
+    async function fetchCart() {
+      try {
+        const cart = await getCartItems();
+        const mapped = (cart || []).map((item: any) => ({
+          id: item.id,
+          title: item.product_name,
+          price: Number(item.price) + Number(item.additionalPrice || 0),
+          qty: item.quantity,
+          imageAlt: item.product_name,
+          imageUrl:
+            item.image && item.image.length > 0
+              ? item.image[0]
+              : "/placeholder.svg",
+        }));
+        setItems(mapped);
+      } catch (e) {
+        setItems([]);
+      }
+    }
+    fetchCart();
+  }, []);
 
   const subtotal = useMemo(
     () => items.reduce((sum, i) => sum + i.price * i.qty, 0),
@@ -63,58 +73,28 @@ export default function CheckoutPage() {
     () => Math.round(subtotal * taxRate * 100) / 100,
     [subtotal]
   );
-  const discount = 0; // hook up any discounts/coupons here
+  const discount = 0;
   const total = Math.max(0, subtotal + shipping + taxes - discount);
 
-  const isFormValid =
-    form.fullName.trim() &&
-    form.email.trim() &&
-    form.address1.trim() &&
-    form.city.trim() &&
-    form.state.trim() &&
-    form.postalCode.trim() &&
-    form.country.trim();
-
   async function handleProceedToPayment() {
-    // Build a payload you can pass directly to a Razorpay-init function or API route later
-    const orderPayload = {
-      customer: {
-        name: form.fullName,
-        email: form.email,
-        phone: form.phone,
-        address: {
-          line1: form.address1,
-          line2: form.address2,
-          city: form.city,
-          state: form.state,
-          postalCode: form.postalCode,
-          country: form.country,
-        },
-        notes: form.notes,
-      },
-      shippingMethod,
-      amounts: {
-        subtotal,
-        shipping,
-        taxes,
-        discount,
-        total,
-        currency: "USD", // swap to your live currency
-      },
-      items: items.map((i) => ({
-        id: i.id,
-        title: i.title,
-        unitPrice: i.price,
-        qty: i.qty,
-      })),
-    };
+    try {
+      const orderPayload = {
+        total_amount: total,
+        payment_method: paymentMethod as "card" | "paypal" | "cash",
+        shipping_address_id: selectedAddressId!,
+        items: items.map((item) => ({
+          item_id: item.id,
+          quantity: item.qty,
+          price: item.price,
+        })),
+      };
 
-    // Example next steps:
-    // 1) POST to your /api/orders to create an order (and/or Razorpay order_id)
-    // 2) Initialize Razorpay checkout on the client with the created order_id
-    // For now, just demo:
-    alert("Proceeding to payment… (Razorpay integration coming soon)");
-    // window.location.href = "/payment"  // optionally route to a payment screen
+      await createOrder(orderPayload);
+      router.push("/payment");
+      toast.success("Order created successfully!");
+    } catch (error) {
+      console.error("Failed to create order:", error);
+    }
   }
 
   return (
@@ -131,7 +111,15 @@ export default function CheckoutPage() {
       <section className="grid grid-cols-1 gap-6 lg:grid-cols-12">
         {/* Left column: Shipping form + Items summary list */}
         <div className="flex flex-col gap-6 lg:col-span-8">
-          <ShippingForm form={form} setForm={setForm} />
+          <ShippingAddressSection
+            selectedAddressId={selectedAddressId}
+            setSelectedAddressId={setSelectedAddressId}
+          />
+
+          <PaymentMethodSection
+            paymentMethod={paymentMethod}
+            setPaymentMethod={setPaymentMethod}
+          />
 
           <Card>
             <CardHeader className="pb-3">
@@ -145,11 +133,7 @@ export default function CheckoutPage() {
                 >
                   <div className="flex items-center gap-3">
                     <img
-                      src={
-                        item.imageUrl ||
-                        "/placeholder.svg?height=64&width=64&query=product image" ||
-                        "/placeholder.svg"
-                      }
+                      src={item.imageUrl || "/placeholder.svg"}
                       alt={item.imageAlt}
                       width={64}
                       height={64}
@@ -160,13 +144,13 @@ export default function CheckoutPage() {
                         {item.title}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        ${item.price.toFixed(2)} × {item.qty}
+                        ₹{item.price.toFixed(2)} × {item.qty}
                       </p>
                     </div>
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-medium">
-                      ${(item.price * item.qty).toFixed(2)}
+                      ₹{(item.price * item.qty).toFixed(2)}
                     </p>
                   </div>
                 </div>
@@ -213,7 +197,7 @@ export default function CheckoutPage() {
                         </span>
                       </div>
                       <span className="text-sm text-muted-foreground">
-                        $5.00
+                        ₹5.00
                       </span>
                     </label>
 
@@ -231,7 +215,7 @@ export default function CheckoutPage() {
                         </span>
                       </div>
                       <span className="text-sm text-muted-foreground">
-                        $12.00
+                        ₹12.00
                       </span>
                     </label>
                   </RadioGroup>
@@ -243,26 +227,26 @@ export default function CheckoutPage() {
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span>${subtotal.toFixed(2)}</span>
+                    <span>₹{subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">Shipping</span>
-                    <span>${shipping.toFixed(2)}</span>
+                    <span>₹{shipping.toFixed(2)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">
                       Taxes ({Math.round(taxRate * 100)}%)
                     </span>
-                    <span>${taxes.toFixed(2)}</span>
+                    <span>₹{taxes.toFixed(2)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-muted-foreground">Discount</span>
-                    <span>${discount.toFixed(2)}</span>
+                    <span>₹{discount.toFixed(2)}</span>
                   </div>
                   <Separator />
                   <div className="flex items-center justify-between text-base font-semibold">
                     <span>Total</span>
-                    <span>${total.toFixed(2)}</span>
+                    <span>₹{total.toFixed(2)}</span>
                   </div>
                 </div>
 
@@ -270,11 +254,18 @@ export default function CheckoutPage() {
                   size="lg"
                   className="w-full"
                   onClick={handleProceedToPayment}
-                  disabled={!isFormValid}
+                  disabled={!selectedAddressId || !paymentMethod}
                   aria-label="Proceed to Payment"
                 >
                   Proceed to Payment
                 </Button>
+
+                {(!selectedAddressId || !paymentMethod) && (
+                  <p className="text-xs text-red-500">
+                    Please select both shipping address and payment method to
+                    proceed
+                  </p>
+                )}
 
                 <p className="text-xs text-muted-foreground">
                   You’ll be able to review your order before completing payment.
