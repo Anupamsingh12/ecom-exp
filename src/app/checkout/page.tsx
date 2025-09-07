@@ -128,7 +128,7 @@ export default function CheckoutPage() {
         theme: {
           color: "#0D0D0D",
         },
-        handler: function (res) {
+        handler: function (res: any) {
           router.push("/profile?type=payment_success");
         },
         modal: {
@@ -138,7 +138,7 @@ export default function CheckoutPage() {
         },
       };
 
-      const razorpay = new window.Razorpay(options);
+      const razorpay = new (window as any).Razorpay(options);
       razorpay.open();
     } catch (error) {
       console.error("Payment initialization failed:", error);
