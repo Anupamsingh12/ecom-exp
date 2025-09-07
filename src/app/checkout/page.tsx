@@ -89,8 +89,8 @@ export default function CheckoutPage() {
         })),
       };
 
-      await createOrder(orderPayload);
-      router.push("/payment");
+      const order = await createOrder(orderPayload);
+      router.push(`/payment?orderId=${order?.id}`);
       toast.success("Order created successfully!");
     } catch (error) {
       console.error("Failed to create order:", error);
