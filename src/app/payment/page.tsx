@@ -23,7 +23,7 @@ import { useAtom } from "jotai";
 import { userAtom } from "../store";
 import { SingleOrderResponse } from "@/types/orders.type";
 
-type PaymentMethod = "card" | "cash" | "paypal";
+type PaymentMethod = "card" | "cash" ;
 
 type CardFormData = {
   cardNumber: string;

@@ -79,7 +79,7 @@ export default async  function ShopPage() {
               ))}
             </div>
             <hr className="border-t-black/10" />
-            <Pagination className="justify-between">
+            {/* <Pagination className="justify-between">
               <PaginationPrevious href="#" className="border border-black/10" />
               <PaginationContent>
                 <PaginationItem>
@@ -137,7 +137,7 @@ export default async  function ShopPage() {
               </PaginationContent>
 
               <PaginationNext href="#" className="border border-black/10" />
-            </Pagination>
+            </Pagination> */}
           </div>
         </div>
       </div>

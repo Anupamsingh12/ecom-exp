@@ -19,8 +19,8 @@ export function PaymentMethodSection({
   const paymentOptions = [
     {
       id: "card",
-      label: "Credit/Debit Card",
-      description: "Pay securely with your card",
+      label: "Credit/Debit Card/UPI",
+      description: "Pay securely with your card/upi",
       icon: CreditCard,
     },
     {
@@ -29,12 +29,12 @@ export function PaymentMethodSection({
       description: "Pay when you receive your order",
       icon: Banknote,
     },
-    {
-      id: "paypal",
-      label: "PayPal",
-      description: "Pay with your PayPal account",
-      icon: Wallet,
-    },
+    // {
+    //   id: "paypal",
+    //   label: "PayPal",
+    //   description: "Pay with your PayPal account",
+    //   icon: Wallet,
+    // },
   ] as const;
 
   return (

@@ -19,6 +19,9 @@ import { PaymentMethod } from "@/types/payment.types";
 import { useRouter } from "next/navigation";
 import { createOrder } from "@/services/orders";
 import toast from "react-hot-toast";
+import { initializePayment } from "@/services/payment";
+import { useAtom } from "jotai";
+import { userAtom } from "../store";
 
 interface CheckoutCartItem {
   id: number;
@@ -39,6 +42,7 @@ export default function CheckoutPage() {
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
     null
   );
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     async function fetchCart() {
@@ -76,11 +80,78 @@ export default function CheckoutPage() {
   const discount = 0;
   const total = Math.max(0, subtotal + shipping + taxes - discount);
 
+
+  const [user] = useAtom(userAtom);
+  const handleRazorpayPayment = async (order: any) => {
+    setIsProcessing(true);
+    try {
+      if (!order) {
+        throw new Error("Order ID is required");
+      }
+      if (!order) {
+        throw new Error("Failed to fetch order details");
+      }
+
+      const response = await initializePayment({
+        order_id: parseInt(order.order_id),
+        amount: total.toFixed(0).toString(),
+      });
+
+      if (!response.success) {
+        throw new Error("Failed to initialize payment");
+      }
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: total,
+        currency: "INR",
+        name: "E-Commerce Store",
+        description: "Payment for your order",
+        image: "https://example.com/your_logo",
+        order_id: response.order.id,
+        callback_url: "",
+        method: {
+          upi: true,
+          netbanking: true,
+          card: true,
+          wallet: true,
+          emi: false,
+        },
+        prefill: {
+          name: order?.shipping_address?.name,
+          email: user?.email || "",
+          contact: order?.shipping_address?.phone,
+        },
+        notes: {
+          address: "Razorpay Corporate Office",
+        },
+        theme: {
+          color: "#0D0D0D",
+        },
+        handler: function (res) {
+          router.push("/profile?type=payment_success");
+        },
+        modal: {
+          ondismiss: function () {
+            router.push("/profile?type=payment_failed");
+          },
+        },
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+    } catch (error) {
+      console.error("Payment initialization failed:", error);
+      alert("Failed to initialize payment. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
   async function handleProceedToPayment() {
     try {
       const orderPayload = {
         total_amount: total,
-        payment_method: paymentMethod as "card" | "paypal" | "cash",
+        payment_method: paymentMethod as "card" | "cash",
         shipping_address_id: selectedAddressId!,
         items: items.map((item) => ({
           item_id: item.id,
@@ -90,13 +161,13 @@ export default function CheckoutPage() {
       };
 
       const order = await createOrder(orderPayload);
-      router.push(`/payment?orderId=${order?.id}`);
-      toast.success("Order created successfully!");
+      handleRazorpayPayment(order);
+      // router.push(`/payment?orderId=${order?.id}`);
+      // toast.success("Order created successfully!");
     } catch (error) {
       console.error("Failed to create order:", error);
     }
   }
-
   return (
     <main className="max-w-frame mx-auto px-4 xl:px-0">
       <h2
