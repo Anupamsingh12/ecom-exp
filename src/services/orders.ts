@@ -1,5 +1,9 @@
 import { apiCall } from "@/lib/apiUtils";
-import { CreateOrderPayload, OrderResponse } from "@/types/orders.type";
+import {
+  CreateOrderPayload,
+  OrderResponse,
+  SingleOrderResponse,
+} from "@/types/orders.type";
 
 // add new
 export async function createOrder(orderPayload: CreateOrderPayload) {
@@ -12,6 +16,11 @@ export async function createOrder(orderPayload: CreateOrderPayload) {
 // get all
 export async function getShippingAddress() {
   return apiCall<OrderResponse>("/orders");
+}
+
+// get single
+export async function getSingleOrderDetails(orderId: number) {
+  return apiCall<SingleOrderResponse[]>(`/orders/${orderId}`);
 }
 
 // update

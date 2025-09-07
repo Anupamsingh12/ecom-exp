@@ -1,8 +1,8 @@
 "use client";
 
 import type React from "react";
-
 import { useState, useEffect } from "react";
+import { getSingleOrderDetails } from "@/services/orders";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -18,6 +18,10 @@ import {
 import { ArrowLeft, CreditCard, Banknote, Shield, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { integralCF } from "@/styles/fonts";
+import { initializePayment } from "@/services/payment";
+import { useAtom } from "jotai";
+import { userAtom } from "../store";
+import { SingleOrderResponse } from "@/types/orders.type";
 
 type PaymentMethod = "card" | "cash" | "paypal";
 
@@ -28,35 +32,21 @@ type CardFormData = {
   cardholderName: string;
 };
 
-type OrderSummary = {
-  subtotal: number;
-  shipping: number;
-  taxes: number;
-  discount: number;
-  total: number;
-  items: Array<{
-    id: string;
-    title: string;
-    price: number;
-    qty: number;
-  }>;
-};
 
-// Mock order data - in real app, this would come from checkout page or API
-const mockOrderSummary: OrderSummary = {
-  subtotal: 116.0,
-  shipping: 5.0,
-  taxes: 9.28,
-  discount: 0,
-  total: 130.28,
-  items: [
-    { id: "sku-tee", title: "Essential Cotton Tee", price: 24, qty: 2 },
-    { id: "sku-jeans", title: "Dark Wash Denim", price: 68, qty: 1 },
-  ],
-};
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 export default function PaymentPage() {
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
+  const [user] = useAtom(userAtom);
+
+  const [orderDetails, setOrderDetails] = useState<SingleOrderResponse | null>(
+    null
+  );
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("paypal");
+  const [orderId, setOrderId] = useState<string | null>(null);
   const [cardForm, setCardForm] = useState<CardFormData>({
     cardNumber: "",
     expiryDate: "",
@@ -65,14 +55,90 @@ export default function PaymentPage() {
   });
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Get payment method from URL params or localStorage
+  // Get payment method, orderId from URL params and fetch order details
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const method = urlParams.get("method") as PaymentMethod;
+    const orderIdParam = urlParams.get("orderId");
+
     if (method && ["card", "cash", "paypal"].includes(method)) {
       setPaymentMethod(method);
     }
+
+    if (orderIdParam) {
+      setOrderId(orderIdParam);
+      // Fetch order details
+      const fetchOrderDetails = async () => {
+        try {
+          const details = await getSingleOrderDetails(parseInt(orderIdParam));
+          if (details) {
+            setOrderDetails(details?.[0]);
+          }
+        } catch (error) {
+          console.error("Failed to fetch order details:", error);
+        }
+      };
+      fetchOrderDetails();
+    }
   }, []);
+
+  const handleRazorpayPayment = async () => {
+    setIsProcessing(true);
+    try {
+      if (!orderId) {
+        throw new Error("Order ID is required");
+      }
+      if (!orderDetails) {
+        throw new Error("Failed to fetch order details");
+      }
+
+      const response = await initializePayment({
+        order_id: parseInt(orderId),
+        amount: orderDetails.total_amount.toString(),
+      });
+
+      if (!response.success) {
+        throw new Error("Failed to initialize payment");
+      }
+
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: response.order.amount,
+        currency: "INR",
+        name: "E-Commerce Store",
+        description: "Payment for your order",
+        image: "https://example.com/your_logo",
+        order_id: response.order.id,
+        // callback_url: "https://eneqd3r9zrjok.x.pipedream.net/",
+        method: {
+          upi: true,
+          netbanking: true,
+          card: true,
+          wallet: true,
+          emi: false,
+        },
+        prefill: {
+          name: orderDetails?.shipping_address.name,
+          email: user?.email || "",
+          contact: orderDetails?.shipping_address.phone,
+        },
+        notes: {
+          address: "Razorpay Corporate Office",
+        },
+        theme: {
+          color: "#0D0D0D",
+        },
+      };
+
+      const razorpay = new window.Razorpay(options);
+      razorpay.open();
+    } catch (error) {
+      console.error("Payment initialization failed:", error);
+      alert("Failed to initialize payment. Please try again.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const handleCardInputChange =
     (field: keyof CardFormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,30 +168,25 @@ export default function PaymentPage() {
       setCardForm((prev) => ({ ...prev, [field]: value }));
     };
 
-  const isCardFormValid =
-    cardForm.cardNumber.replace(/\s/g, "").length >= 13 &&
-    cardForm.expiryDate.length === 5 &&
-    cardForm.cvv.length >= 3 &&
-    cardForm.cardholderName.trim().length > 0;
-
-  const handleCompletePayment = async () => {
-    setIsProcessing(true);
-
-    // Simulate payment processing
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    if (paymentMethod === "card") {
-      // Here you would integrate with Razorpay or other payment gateway
-      alert("Payment processed successfully! (Demo)");
-    } else if (paymentMethod === "cash") {
-      alert("Order confirmed! You can pay cash on delivery.");
-    } else if (paymentMethod === "paypal") {
-      // Here you would redirect to PayPal
-      alert("Redirecting to PayPal... (Demo)");
-    }
-
-    setIsProcessing(false);
-  };
+  if (!orderId) {
+    return (
+      <main className="max-w-frame mx-auto px-4 xl:px-0 min-h-[50vh] flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-red-600">
+              <Lock className="h-5 w-5" />
+              Invalid Order
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground">
+              No order ID was provided. Please return to checkout and try again.
+            </p>
+          </CardContent>
+        </Card>
+      </main>
+    );
+  }
 
   return (
     <main className="max-w-frame mx-auto px-4 xl:px-0">
@@ -302,12 +363,12 @@ export default function PaymentPage() {
             <CardContent className="space-y-4">
               {/* Items */}
               <div className="space-y-3">
-                {mockOrderSummary.items.map((item) => (
+                {orderDetails?.items?.map((item: any) => (
                   <div key={item.id} className="flex justify-between text-sm">
                     <span className="text-muted-foreground">
-                      {item.title} × {item.qty}
+                      {item.quantity} Qty
                     </span>
-                    <span>₹{(item.price * item.qty).toFixed(2)}</span>
+                    <span>₹{(item.price * item.quantity).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
@@ -318,26 +379,26 @@ export default function PaymentPage() {
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Subtotal</span>
-                  <span>₹{mockOrderSummary.subtotal.toFixed(2)}</span>
+                  <span>₹{orderDetails?.total_amount || "0.00"}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Shipping</span>
-                  <span>₹{mockOrderSummary.shipping.toFixed(2)}</span>
+                  <span>₹{"0.00"}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Taxes</span>
-                  <span>₹{mockOrderSummary.taxes.toFixed(2)}</span>
+                  <span>₹{"0.00"}</span>
                 </div>
-                {mockOrderSummary.discount > 0 && (
+                {/* {orderDetails?.discount_amount > 0 && (
                   <div className="flex justify-between text-green-600">
                     <span>Discount</span>
-                    <span>-₹{mockOrderSummary.discount.toFixed(2)}</span>
+                    <span>-₹{orderDetails.discount_amount.toFixed(2)}</span>
                   </div>
-                )}
+                )} */}
                 <Separator />
                 <div className="flex justify-between font-semibold">
                   <span>Total</span>
-                  <span>₹{mockOrderSummary.total.toFixed(2)}</span>
+                  <span>₹{orderDetails?.total_amount || "0.00"}</span>
                 </div>
               </div>
 
@@ -345,10 +406,8 @@ export default function PaymentPage() {
               <Button
                 size="lg"
                 className="w-full"
-                onClick={handleCompletePayment}
-                disabled={
-                  isProcessing || (paymentMethod === "card" && !isCardFormValid)
-                }
+                onClick={handleRazorpayPayment}
+                disabled={!orderDetails}
               >
                 {isProcessing ? (
                   <>
@@ -358,9 +417,9 @@ export default function PaymentPage() {
                 ) : (
                   <>
                     {paymentMethod === "card" &&
-                      `Pay ₹${mockOrderSummary.total.toFixed(2)}`}
+                      `Pay ₹${orderDetails?.total_amount || "0.00"}`}
                     {paymentMethod === "cash" && "Confirm Order"}
-                    {paymentMethod === "paypal" && "Continue to PayPal"}
+                    {paymentMethod === "paypal" && "Pay"}
                   </>
                 )}
               </Button>

@@ -33,15 +33,15 @@ export default function RootLayout({
           <JotaiProvider>
             <AuthProvider>
               <TopNavbar />
-              <Toaster
-                position="top-center"
-                reverseOrder={false}
-              />
+              <Toaster position="top-center" reverseOrder={false} />
               {children}
             </AuthProvider>
           </JotaiProvider>
         </Providers>
         <Footer />
+
+        {/* Razorpay Script */}
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
       </body>
     </html>
   );
