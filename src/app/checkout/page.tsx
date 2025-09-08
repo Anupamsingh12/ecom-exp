@@ -144,7 +144,7 @@ export default function CheckoutPage() {
       console.error("Payment initialization failed:", error);
       alert("Failed to initialize payment. Please try again.");
     } finally {
-      setIsProcessing(false);
+
     }
   };
   async function handleProceedToPayment() {
