@@ -84,7 +84,6 @@ export default function CheckoutPage() {
 
   const [user] = useAtom(userAtom);
   const handleRazorpayPayment = async (order: any) => {
-    setIsProcessing(true);
     try {
       if (!order) {
         throw new Error("Order ID is required");

@@ -43,8 +43,11 @@ const UserAuthNav = () => {
         /> */}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuItem onClick={() => router.push("/profile")}>
+        <DropdownMenuItem className="hover:!bg-red-500 hover:!text-white" onClick={() => router.push("/profile")}>
           Profile
+        </DropdownMenuItem>
+        <DropdownMenuItem className="hover:!bg-red-500 hover:!text-white" onClick={() => router.push("/orders")}>
+          orders
         </DropdownMenuItem>
         <DropdownMenuItem
           className="hover:!bg-red-500 hover:!text-white"

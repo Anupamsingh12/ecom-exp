@@ -18,8 +18,8 @@ export function ProfilePageTab() {
     <Tabs defaultValue="settings" className="w-full">
       <TabsList className="grid grid-cols-3 w-full max-w-xl">
         <TabsTrigger value="settings">General settings</TabsTrigger>
-        <TabsTrigger value="cart">Cart</TabsTrigger>
-        <TabsTrigger value="checkout">Checkout</TabsTrigger>
+        {/* <TabsTrigger value="cart">Cart</TabsTrigger> */}
+        {/* <TabsTrigger value="checkout">Checkout</TabsTrigger> */}
       </TabsList>
 
       <div className="mt-6">
