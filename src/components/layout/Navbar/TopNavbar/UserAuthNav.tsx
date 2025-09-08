@@ -47,7 +47,7 @@ const UserAuthNav = () => {
           Profile
         </DropdownMenuItem>
         <DropdownMenuItem className="hover:!bg-red-500 hover:!text-white" onClick={() => router.push("/orders")}>
-          orders
+          Orders
         </DropdownMenuItem>
         <DropdownMenuItem
           className="hover:!bg-red-500 hover:!text-white"
