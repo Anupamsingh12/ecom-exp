@@ -56,5 +56,5 @@ export interface OrderResponse extends BaseOrder {
 
 export interface SingleOrderResponse extends BaseOrder {
   shipping_address: ShippingAddress;
-  items: OrderItem[];
+  items: any[];
 }

@@ -20,7 +20,11 @@ export async function getShippingAddress() {
 
 // get single
 export async function getSingleOrderDetails(orderId: number) {
-  return apiCall<SingleOrderResponse[]>(`/orders/${orderId}`);
+  return apiCall<any>(`/orders/${orderId}`);
+}
+
+export async function getAllOrder() {
+  return apiCall<any[]>(`/orders`);
 }
 
 // update

@@ -25,6 +25,7 @@ import { userAtom } from "../store";
 
 interface CheckoutCartItem {
   id: number;
+  varient_id: number;
   title: string;
   price: number;
   qty: number;
@@ -42,7 +43,6 @@ export default function CheckoutPage() {
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(
     null
   );
-  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     async function fetchCart() {
@@ -50,6 +50,7 @@ export default function CheckoutPage() {
         const cart = await getCartItems();
         const mapped = (cart || []).map((item: any) => ({
           id: item.id,
+          varient_id: item.varient_id,
           title: item.product_name,
           price: Number(item.price) + Number(item.additionalPrice || 0),
           qty: item.quantity,
@@ -129,7 +130,7 @@ export default function CheckoutPage() {
           color: "#0D0D0D",
         },
         handler: function (res: any) {
-          router.push("/profile?type=payment_success");
+          router.push(`/orders/${order.order_id}?type=success`);
         },
         modal: {
           ondismiss: function () {
@@ -154,15 +155,18 @@ export default function CheckoutPage() {
         payment_method: paymentMethod as "card" | "cash",
         shipping_address_id: selectedAddressId!,
         items: items.map((item) => ({
-          item_id: item.id,
+          item_id: item.varient_id,
           quantity: item.qty,
           price: item.price,
         })),
       };
 
       const order = await createOrder(orderPayload);
-      handleRazorpayPayment(order);
-      // router.push(`/payment?orderId=${order?.id}`);
+      if(paymentMethod==='card'){
+        handleRazorpayPayment(order);
+      }else{
+        router.push(`/orders/${order?.order_id}?type=cod_success`);
+      }
       // toast.success("Order created successfully!");
     } catch (error) {
       console.error("Failed to create order:", error);
@@ -328,7 +332,7 @@ export default function CheckoutPage() {
                   disabled={!selectedAddressId || !paymentMethod}
                   aria-label="Proceed to Payment"
                 >
-                  Proceed to Payment
+                  {paymentMethod && paymentMethod==='card'?"Proceed to Payment":'Place order'}
                 </Button>
 
                 {(!selectedAddressId || !paymentMethod) && (

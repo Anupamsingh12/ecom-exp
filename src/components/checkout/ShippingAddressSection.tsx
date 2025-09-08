@@ -184,7 +184,7 @@ export function ShippingAddressSection({
                   size="sm"
                   onClick={() => setIsExpanded(false)}
                 >
-                  Collapse
+                  Close
                 </Button>
               </div>
 

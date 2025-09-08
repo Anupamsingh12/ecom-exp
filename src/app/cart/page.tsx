@@ -13,8 +13,6 @@ import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/lib/hooks/useAuth";
-import { useAtom } from "jotai";
-import { cartAtom } from "@/app/store";
 import { useCartInitialization } from "@/lib/hooks/useCartInitialization";
 
 export default function CartPage() {

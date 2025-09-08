@@ -40,6 +40,14 @@ export async function removeItemFromCart(productId: number) {
     },
   });
 }
+export async function emptyCart() {
+  return apiCall<CartResponse>(`/carts`, {
+    method: "DELETE",
+    body: {
+      all: true,
+    },
+  });
+}
 export async function updateCartQuantity(cart_id: number, quantity: number) {
   return apiCall<CartResponse>(`/carts/${cart_id}`, {
     method: "PATCH",
