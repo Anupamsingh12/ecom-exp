@@ -54,6 +54,9 @@ const OrderCard = ({ data, onCancel, onTrack }: OrderCardProps) => {
           <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100 border">
             {data.status}
           </span>
+          <span className="text-xs px-2 py-0.5 ">
+            {"Payment: " +  data.payment_method}
+          </span>
         </div>
         <p className="text-sm text-gray-500">
           {new Date(data.createdAt).toLocaleDateString()}
@@ -70,7 +73,7 @@ const OrderCard = ({ data, onCancel, onTrack }: OrderCardProps) => {
 
         <div className="flex items-center gap-4 text-sm">
           <p className="font-semibold text-base">₹{data.total_amount}</p>
-          <Link
+          {/* <Link
             href={`/orders/${data.id}/track`}
             className="text-blue-600 hover:underline"
             onClick={() => onTrack(data.id)}
@@ -84,12 +87,12 @@ const OrderCard = ({ data, onCancel, onTrack }: OrderCardProps) => {
             >
               Cancel
             </button>
-          )}
+          )} */}
           <Link
             href={`/orders/${data.id}`}
-            className="text-gray-600 hover:underline"
+            className="text-red-600 hover:underline"
           >
-            View Summary
+            View Detail
           </Link>
         </div>
       </div>

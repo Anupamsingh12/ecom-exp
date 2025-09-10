@@ -8,6 +8,7 @@ import { MapPinIcon, PlusIcon, PencilIcon } from "lucide-react";
 import { AddAddressModal } from "./AddAddressModal";
 import { getShippingAddress, addShippingAddress, updateShippingAddress } from "@/services/shipping-address";
 import { ShippingAddress, ShippingAddressPayload } from "@/types/shippingAddress.types";
+import toast from "react-hot-toast";
 
 type Address = ShippingAddress;
 
@@ -79,7 +80,9 @@ export function ShippingAddressSection({
       await addShippingAddress(addressData);
       fetchAddresses(); // Refresh the list
       setIsAddModalOpen(false);
+      toast.success('Address added successfully')
     } catch (error) {
+      toast.error('Failed to add address')
       console.error('Error adding address:', error);
     }
   };
@@ -134,7 +137,7 @@ export function ShippingAddressSection({
           </div>
           <AddAddressModal
             isOpen={isAddModalOpen}
-            onClose={() => setIsAddModalOpen(false)}
+            onClose={handleCloseAddModal}
           />
         </CardContent>
       </Card>
