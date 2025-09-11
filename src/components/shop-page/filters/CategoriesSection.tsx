@@ -1,46 +1,55 @@
-import Link from "next/link";
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { MdKeyboardArrowRight } from "react-icons/md";
+import { getAllCategory } from "@/services/categories";
 
 type Category = {
   title: string;
   slug: string;
 };
 
-const categoriesData: Category[] = [
-  {
-    title: "T-shirts",
-    slug: "/shop?category=t-shirts",
-  },
-  {
-    title: "Shorts",
-    slug: "/shop?category=shorts",
-  },
-  {
-    title: "Shirts",
-    slug: "/shop?category=shirts",
-  },
-  {
-    title: "Hoodie",
-    slug: "/shop?category=hoodie",
-  },
-  {
-    title: "Jeans",
-    slug: "/shop?category=jeans",
-  },
-];
+type Props = {
+  value: string[];
+  onChange: (val: string[]) => void;
+};
 
-const CategoriesSection = () => {
+const CategoriesSection: React.FC<Props> = ({ value, onChange }) => {
+  const [cats, setCats] = useState<Category[]>([]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const categories = await getAllCategory();
+      const mapped = categories.map((cat: any) => ({
+        title: cat.name,
+        slug: cat.name,
+      }));
+      setCats(mapped);
+    };
+    fetchCategories();
+  }, []);
+
+  const toggleCategory = (cat: string) => {
+    if (value.includes(cat)) {
+      onChange(value.filter((c) => c !== cat));
+    } else {
+      onChange([...value, cat]);
+    }
+  };
+
   return (
-    <div className="flex flex-col space-y-0.5 text-black/60">
-      {categoriesData.map((category, idx) => (
-        <Link
+    <div className="flex flex-col space-y-1 text-black/80">
+      {cats.map((cat, idx) => (
+        <button
           key={idx}
-          href={category.slug}
-          className="flex items-center justify-between py-2"
+          type="button"
+          onClick={() => toggleCategory(cat.slug)}
+          className={`flex items-center justify-between py-2 ${
+            value.includes(cat.slug) ? "font-bold text-black" : ""
+          }`}
         >
-          {category.title} <MdKeyboardArrowRight />
-        </Link>
+          {cat.title} <MdKeyboardArrowRight />
+        </button>
       ))}
     </div>
   );

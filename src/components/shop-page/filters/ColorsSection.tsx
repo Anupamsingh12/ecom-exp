@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import {
   Accordion,
   AccordionContent,
@@ -10,8 +10,24 @@ import {
 import { IoMdCheckmark } from "react-icons/io";
 import { cn } from "@/lib/utils";
 
-const ColorsSection = () => {
-  const [selected, setSelected] = useState<string>("bg-green-600");
+type Props = {
+  value: string;
+  onChange: (val: string) => void;
+};
+
+const ColorsSection: React.FC<Props> = ({ value, onChange }) => {
+  const colors = [
+    "bg-green-600",
+    "bg-red-600",
+    "bg-yellow-300",
+    "bg-orange-600",
+    "bg-cyan-400",
+    "bg-blue-600",
+    "bg-purple-600",
+    "bg-pink-600",
+    "bg-white",
+    "bg-black",
+  ];
 
   return (
     <Accordion type="single" collapsible defaultValue="filter-colors">
@@ -21,18 +37,7 @@ const ColorsSection = () => {
         </AccordionTrigger>
         <AccordionContent className="pt-4 pb-0">
           <div className="flex space-2.5 flex-wrap md:grid grid-cols-5 gap-2.5">
-            {[
-              "bg-green-600",
-              "bg-red-600",
-              "bg-yellow-300",
-              "bg-orange-600",
-              "bg-cyan-400",
-              "bg-blue-600",
-              "bg-purple-600",
-              "bg-pink-600",
-              "bg-white",
-              "bg-black",
-            ].map((color, index) => (
+            {colors.map((color, index) => (
               <button
                 key={index}
                 type="button"
@@ -40,9 +45,9 @@ const ColorsSection = () => {
                   color,
                   "rounded-full w-9 sm:w-10 h-9 sm:h-10 flex items-center justify-center border border-black/20",
                 ])}
-                onClick={() => setSelected(color)}
+                onClick={() => onChange(color)}
               >
-                {selected === color && (
+                {value === color && (
                   <IoMdCheckmark className="text-base text-white" />
                 )}
               </button>

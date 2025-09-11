@@ -1,38 +1,41 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import Link from "next/link";
 import { MdKeyboardArrowRight } from "react-icons/md";
+import { getAllClothingTypes } from "@/services/clothing-types";
+import { cn } from "@/lib/utils";
 
 type DressStyle = {
   title: string;
   slug: string;
 };
 
-const dressStylesData: DressStyle[] = [
-  {
-    title: "Casual",
-    slug: "/shop?style=casual",
-  },
-  {
-    title: "Formal",
-    slug: "/shop?style=formal",
-  },
-  {
-    title: "Party",
-    slug: "/shop?style=party",
-  },
-  {
-    title: "Gym",
-    slug: "/shop?style=gym",
-  },
-];
+type Props = {
+  value: string;
+  onChange: (val: string) => void;
+};
 
-const DressStyleSection = () => {
+const DressStyleSection: React.FC<Props> = ({ value, onChange }) => {
+  const [dressStyles, setDressStyles] = useState<DressStyle[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data: any = await getAllClothingTypes();
+      const mapped = data.map((item: any) => ({
+        title: item.name,
+        slug: `/shop?style=${item.name}`,
+      }));
+      setDressStyles(mapped);
+    };
+    fetchData();
+  }, []);
+
   return (
     <Accordion type="single" collapsible defaultValue="filter-style">
       <AccordionItem value="filter-style" className="border-none">
@@ -41,14 +44,18 @@ const DressStyleSection = () => {
         </AccordionTrigger>
         <AccordionContent className="pt-4 pb-0">
           <div className="flex flex-col text-black/60 space-y-0.5">
-            {dressStylesData.map((dStyle, idx) => (
-              <Link
+            {dressStyles.map((dStyle, idx) => (
+              <button
                 key={idx}
-                href={dStyle.slug}
-                className="flex items-center justify-between py-2"
+                type="button"
+                className={cn([
+                  "flex items-center justify-between py-2 w-full text-left",
+                  value === dStyle.title && "font-medium text-black",
+                ])}
+                onClick={() => onChange(dStyle.title)}
               >
                 {dStyle.title} <MdKeyboardArrowRight />
-              </Link>
+              </button>
             ))}
           </div>
         </AccordionContent>
